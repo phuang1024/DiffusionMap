@@ -5,12 +5,12 @@ from torch.utils.data import DataLoader
 from torchvision.utils import make_grid, save_image
 
 from AcgData import ColorDataset
-from .model import create_model
+from .model import create_model, device
 
 
 def train(args):
     dataset = ColorDataset(args.data, args.res)
-    loader = DataLoader(dataset, batch_size=4, shuffle=True)
+    loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=4)
 
     model, diffusion = create_model(args)
     optim = torch.optim.Adam(model.parameters(), lr=1e-3)
@@ -21,6 +21,7 @@ def train(args):
         step = 0
         for i in range(args.train_mult):
             for x in loader:
+                x = x.to(device)
                 loss = diffusion(x)
                 loss.backward()
                 optim.step()
