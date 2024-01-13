@@ -17,6 +17,7 @@ def main():
     train_p = subp.add_parser("train")
     train_p.add_argument("--epochs", type=int, default=100)
     train_p.add_argument("--train_mult", type=int, default=5, help="Repeat train dataset N times per epoch")
+    train_p.add_argument("--test_interval", type=int, default=5)
     train_p.add_argument("--batch_size", type=int, default=4)
     train_p.add_argument("--unet_dim", type=int, default=64)
     train_p.add_argument("--diffusion_steps", type=int, default=100)
