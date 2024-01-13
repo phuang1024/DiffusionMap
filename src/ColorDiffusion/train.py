@@ -13,7 +13,7 @@ def train(args):
     loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=4)
 
     model, diffusion = create_model(args)
-    optim = torch.optim.Adam(model.parameters(), lr=1e-3)
+    optim = torch.optim.Adam(model.parameters(), lr=1e-4)
 
     for epoch in range(args.epochs):
         print(f"Train epoch {epoch}")

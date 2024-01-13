@@ -9,8 +9,8 @@ def main():
     parser = argparse.ArgumentParser()
     subp = parser.add_subparsers(dest="action")
 
-    parser.add_argument("data", type=Path)
-    parser.add_argument("output", type=Path)
+    parser.add_argument("--data", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
 
     parser.add_argument("--res", type=int, default=256)
 
