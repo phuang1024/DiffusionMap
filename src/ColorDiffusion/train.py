@@ -14,9 +14,10 @@ def train(args):
 
     model, diffusion = create_model(args)
     optim = torch.optim.Adam(model.parameters(), lr=1e-4)
+    scheduler = torch.optim.lr_scheduler.ExponentialLR(optim, gamma=0.97)
 
     for epoch in range(args.epochs):
-        print(f"Train epoch {epoch}")
+        print(f"Train epoch {epoch};  lr {scheduler.get_last_lr()[0]:.2e}")
         pbar = tqdm(range(args.train_mult * len(loader)))
         step = 0
         for i in range(args.train_mult):
@@ -38,3 +39,5 @@ def train(args):
             grid = make_grid(generated, nrow=4)
             save_image(grid, args.output / f"epoch{epoch}.png")
             torch.save(model.state_dict(), args.output / f"epoch{epoch}.pt")
+
+        scheduler.step()
