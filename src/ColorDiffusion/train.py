@@ -8,13 +8,12 @@ from AcgData import ColorDataset
 from .model import create_model, device
 
 
-def train(args):
-    dataset = ColorDataset(args.data, args.res)
+def train(args, dataset):
     loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=4)
 
     model, diffusion = create_model(args)
     optim = torch.optim.Adam(model.parameters(), lr=1e-4)
-    scheduler = torch.optim.lr_scheduler.ExponentialLR(optim, gamma=0.97)
+    scheduler = torch.optim.lr_scheduler.ExponentialLR(optim, gamma=0.96)
 
     for epoch in range(args.epochs):
         print(f"Train epoch {epoch};  lr {scheduler.get_last_lr()[0]:.2e}")
@@ -32,12 +31,13 @@ def train(args):
                 pbar.set_description(desc)
                 pbar.update(1)
                 step += 1
+        pbar.close()
 
         if epoch % args.test_interval == 0:
             print(f"Test epoch {epoch}")
             with torch.no_grad():
-                generated = diffusion.sample(batch_size=16)
-                grid = make_grid(generated, nrow=4)
+                generated = diffusion.sample(batch_size=9)
+                grid = make_grid(generated, nrow=3)
                 save_image(grid, args.output / f"epoch{epoch}.png")
                 torch.save(model.state_dict(), args.output / f"epoch{epoch}.pt")
 
