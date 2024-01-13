@@ -123,6 +123,8 @@ def download_data(output_dir: Path, search_query: str = "", count: int = 100, bs
     while remaining > 0:
         query = query_catalog(search_query, bs, offset)
         assets = query["foundAssets"]
+        if len(assets) == 0:
+            break
 
         threads = []
         for asset in assets:
