@@ -36,5 +36,5 @@ def train(args):
         with torch.no_grad():
             generated = diffusion.sample(batch_size=16)
             grid = make_grid(generated, nrow=4)
-            save_image(grid, args.results / f"epoch{epoch}.png")
-            torch.save(model.state_dict(), args.results / f"epoch{epoch}.pt")
+            save_image(grid, args.output / f"epoch{epoch}.png")
+            torch.save(model.state_dict(), args.output / f"epoch{epoch}.pt")
