@@ -14,15 +14,14 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
 
     parser.add_argument("--res", type=int, default=256)
-    parser.add_argument("--image_scale", type=float, default=0.25, help="Passed to ColorDataset")
+    parser.add_argument("--image_scale", type=float, default=0.5, help="Passed to ColorDataset")
 
     train_p = subp.add_parser("train")
-    train_p.add_argument("--epochs", type=int, default=101)
+    train_p.add_argument("--epochs", type=int, default=1001)
     train_p.add_argument("--train_mult", type=int, default=8, help="Repeat train dataset N times per epoch")
-    train_p.add_argument("--test_interval", type=int, default=10)
-    train_p.add_argument("--batch_size", type=int, default=4)
-    train_p.add_argument("--unet_dim", type=int, default=64)
-    train_p.add_argument("--diffusion_steps", type=int, default=1000)
+    train_p.add_argument("--test_interval", type=int, default=40)
+    train_p.add_argument("--batch_size", type=int, default=8)
+    train_p.add_argument("--grad_accum", type=int, default=4)
 
     data_p = subp.add_parser("view_data")
 

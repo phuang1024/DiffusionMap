@@ -12,8 +12,8 @@ def train(args, dataset):
     loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True, num_workers=4)
 
     model, diffusion = create_model(args)
-    optim = torch.optim.Adam(model.parameters(), lr=1e-4)
-    scheduler = torch.optim.lr_scheduler.ExponentialLR(optim, gamma=0.96)
+    optim = torch.optim.Adam(model.parameters(), lr=2e-4)
+    scheduler = torch.optim.lr_scheduler.ExponentialLR(optim, gamma=0.997)
 
     for epoch in range(args.epochs):
         print(f"Train epoch {epoch};  lr {scheduler.get_last_lr()[0]:.2e}")
@@ -23,14 +23,18 @@ def train(args, dataset):
             for x in loader:
                 x = x.to(device)
                 loss = diffusion(x)
+                loss /= args.grad_accum
                 loss.backward()
-                optim.step()
-                optim.zero_grad()
+
+                if (step + 1) % args.grad_accum == 0:
+                    optim.step()
+                    optim.zero_grad()
 
                 desc = f"  Epoch {epoch};  Sample {step};  Loss {loss.item():.4f}"
                 pbar.set_description(desc)
                 pbar.update(1)
                 step += 1
+
         pbar.close()
 
         if epoch % args.test_interval == 0:
