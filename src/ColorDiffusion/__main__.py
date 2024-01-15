@@ -17,7 +17,9 @@ def main():
     parser.add_argument("--image_scale", type=float, default=0.5, help="Passed to ColorDataset")
 
     train_p = subp.add_parser("train")
+    train_p.add_argument("--resume", type=str)
     train_p.add_argument("--epochs", type=int, default=1001)
+    train_p.add_argument("--lr", type=float, default=1e-4)
     train_p.add_argument("--train_mult", type=int, default=8, help="Repeat train dataset N times per epoch")
     train_p.add_argument("--test_interval", type=int, default=40)
     train_p.add_argument("--batch_size", type=int, default=8)
