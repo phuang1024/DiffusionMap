@@ -12,14 +12,19 @@ bl_info = {
 
 import bpy
 
+from .props import *
+
 
 classes = (
+    DMAP_Props,
 )
 
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
+    bpy.types.Scene.dmap = bpy.props.PointerProperty(type=DMAP_Props)
 
 def unregister():
     for cls in classes:
         bpy.utils.unregister_class(cls)
+    del bpy.types.Scene.dmap
