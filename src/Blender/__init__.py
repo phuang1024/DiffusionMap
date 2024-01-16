@@ -12,11 +12,18 @@ bl_info = {
 
 import bpy
 
+from .ops import *
 from .props import *
+from .ui import *
 
 
 classes = (
     DMAP_Props,
+
+    DMAP_OT_ImportFile,
+
+    DMAP_PT_Main,
+    DMAP_PT_Importer,
 )
 
 def register():
