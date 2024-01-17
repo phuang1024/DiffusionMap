@@ -28,7 +28,11 @@ class DMAP_PT_Importer(BasePanel, bpy.types.Panel):
         layout = self.layout
         props = context.scene.dmap
 
-        layout.prop(props, "i_path")
-        layout.prop(props, "i_import_action")
+        layout.prop(props, "import_path")
+        layout.prop(props, "import_action")
 
-        layout.operator("dmap.import_file")
+        layout.prop(props, "import_ref")
+        layout.prop(props, "project_tx_path")
+        layout.prop(props, "save_to_catalog")
+
+        layout.operator("dmap.import_from_file", icon="MATERIAL")

@@ -9,13 +9,13 @@ from zipfile import ZipFile
 import bpy
 
 
-def get_map_files(files):
+def get_map_files(directory):
     """
-    Returns dict of map name to file path.
+    Returns dict of map name to absolute file path.
     """
     maps = {}
 
-    for f in files:
+    for f in os.listdir(directory):
         name = os.path.basename(f).lower()
         if "color" in name:
             maps["color"] = f
@@ -28,6 +28,7 @@ def get_map_files(files):
         elif "roughness" in name:
             maps["rough"] = f
 
+    maps = {k: os.path.join(directory, f) for k, f in maps.items()}
     return maps
 
 
@@ -105,7 +106,7 @@ def create_node_group(name, maps):
     rough_adj.location = (750, -10)
     tree.links.new(rough_adj.inputs[3], inputs.outputs[2])
     tree.links.new(rough_adj.inputs[4], inputs.outputs[3])
-    tree.links.new(shader.inputs[9], rough_adj.outputs[0])
+    tree.links.new(shader.inputs[2], rough_adj.outputs[0])
 
     if "rough" in maps:
         map_rough = add_image_node(tree, maps["rough"])
@@ -121,7 +122,7 @@ def create_node_group(name, maps):
     nrm.hide = True
     tree.links.new(bump.inputs[1], inputs.outputs[4])
     tree.links.new(bump.inputs[3], nrm.outputs[0])
-    tree.links.new(shader.inputs[22], bump.outputs[0])
+    tree.links.new(shader.inputs[5], bump.outputs[0])
 
     if "disp" in maps:
         map_disp = add_image_node(tree, maps["disp"])
@@ -155,51 +156,66 @@ def create_material(name):
     tree.links.new(output.inputs[0], shader.outputs[0])
 
 
-def do_import_action(name, path, action, report):
+def do_action(name, maps, action, report):
+    action = int(action)
+
+    if action >= 0:
+        # Create node group
+        if name in bpy.data.node_groups:
+            if action == 0:
+                report({"WARNING"}, f"Node group {name} already exists, skipping.")
+        else:
+            create_node_group(name, maps)
+
+    if action >= 1:
+        # Create material
+        if name in bpy.data.materials:
+            if action == 1:
+                report({"WARNING"}, f"Material {name} already exists, skipping.")
+        else:
+            create_material(name)
+
+    if action >= 2:
+        # Apply to active obj's slots.
+        obj = bpy.context.object
+        if obj is None:
+            report({"WARNING"}, f"No active object, not applying material.")
+        else:
+            slots = obj.material_slots
+            material = bpy.data.materials[name]
+            if action == 2:
+                # Apply to active
+                if len(slots) == 0:
+                    obj.data.materials.append(material)
+                else:
+                    slots[obj.active_material_index].material = material
+
+            elif action == 3:
+                # Apply to new slot
+                obj.data.materials.append(material)
+
+
+def importer_main(name, path, action, report):
     """
     Call this from operator to load material.
 
-    :param action: props.action
-    :param report: self.report
+    name: Name of material and node group.
+    path: Path to zip file or textures directory.
+    action: props.import_action
+    report: self.report (function).
     """
-    with TemporaryDirectory() as tmp, ZipFile(path) as zip:
-        zip.extractall(tmp)
-        maps = get_map_files(os.listdir(tmp))
-        maps = {k: os.path.join(tmp, f) for k, f in maps.items()}
+    if path.endswith(".zip"):
+        with TemporaryDirectory() as tmp, ZipFile(path) as zip:
+            zip.extractall(tmp)
+            maps = get_map_files(tmp)
+            do_action(name, maps, action, report)
 
-        action = int(action)
+    else:
+        maps = get_map_files(path)
+        do_action(name, maps, action, report)
 
-        if action >= 0:
-            # Create node group
-            if name in bpy.data.node_groups:
-                if action == 0:
-                    report({"WARNING"}, f"Node group {name} already exists, skipping.")
-            else:
-                create_node_group(name, maps)
 
-        if action >= 1:
-            # Create material
-            if name in bpy.data.materials:
-                if action == 1:
-                    report({"WARNING"}, f"Material {name} already exists, skipping.")
-            else:
-                create_material(name)
-
-        if action >= 2:
-            # Apply to active obj's slots.
-            obj = bpy.context.object
-            if obj is None:
-                report({"WARNING"}, f"No active object, not applying material.")
-            else:
-                slots = obj.material_slots
-                material = bpy.data.materials[name]
-                if action == 2:
-                    # Apply to active
-                    if len(slots) == 0:
-                        obj.data.materials.append(material)
-                    else:
-                        slots[obj.active_material_index].material = material
-
-                elif action == 3:
-                    # Apply to new slot
-                    obj.data.materials.append(material)
+def validate_settings(props) -> bool:
+    """
+    props: context.scene.dmap
+    """

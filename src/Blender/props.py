@@ -4,14 +4,14 @@ import bpy
 class DMAP_Props(bpy.types.PropertyGroup):
     # Importer props
 
-    i_path: bpy.props.StringProperty(
+    import_path: bpy.props.StringProperty(
         name="Path",
         description="Path to material zip or dir.",
         subtype="FILE_PATH",
         default="",
     )
 
-    i_import_action: bpy.props.EnumProperty(
+    import_action: bpy.props.EnumProperty(
         name="Action",
         items=(
             ("0", "Node group", "Create shader node group."),
@@ -20,4 +20,27 @@ class DMAP_Props(bpy.types.PropertyGroup):
             ("3", "New slot", "Create material and assign to new material slot."),
         ),
         default="3",
+    )
+
+    project_tx_path: bpy.props.StringProperty(
+        name="Project textures",
+        description="Path to local textures dir for this project.",
+        default="//Textures",
+    )
+
+    import_ref: bpy.props.EnumProperty(
+        name="Reference",
+        description="Which image files to reference from Image Texture(s).",
+        items=(
+            ("0", "Given", "Reference from given path. Can't be used with zip."),
+            ("1", "Project", "Copy to and use project textures path. Blend must be saved."),
+            ("2", "Catalog", "Copy to and use catalog path."),
+        ),
+        default="0",
+    )
+
+    save_to_catalog: bpy.props.BoolProperty(
+        name="Save to catalog",
+        description="Also save textures to catalog.",
+        default=True,
     )
