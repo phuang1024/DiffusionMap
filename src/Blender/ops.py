@@ -2,7 +2,7 @@ from pathlib import Path
 
 import bpy
 
-from .importer import importer_main
+from .importer import importer_main, validate_settings
 
 
 class DMAP_OT_ImportFile(bpy.types.Operator):
@@ -14,9 +14,14 @@ class DMAP_OT_ImportFile(bpy.types.Operator):
     def execute(self, context):
         props = context.scene.dmap
 
-        path = Path(props.import_path)
-        name = path.stem.rsplit("_", 1)[0]
+        validate = validate_settings(context)
+        if validate is not None:
+            self.report({"ERROR"}, validate)
+            return {"CANCELLED"}
+        else:
+            path = Path(props.import_path)
+            name = path.stem.rsplit("_", 1)[0]
 
-        importer_main(name, props.import_path, props.import_action, self.report)
+            importer_main(name, props.import_path, props.import_action, self.report)
 
-        return {"FINISHED"}
+            return {"FINISHED"}

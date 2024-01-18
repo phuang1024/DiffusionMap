@@ -18,6 +18,12 @@ class DMAP_Prefs(bpy.types.AddonPreferences):
 
 
 class DMAP_Props(bpy.types.PropertyGroup):
+    project_tx_path: bpy.props.StringProperty(
+        name="Project textures",
+        description="Path to local textures dir for this project.",
+        default="//Textures",
+    )
+
     # Importer props
 
     import_path: bpy.props.StringProperty(
@@ -35,21 +41,16 @@ class DMAP_Props(bpy.types.PropertyGroup):
             ("1", "Material", "Create material datablock."),
             ("2", "Current slot", "Create material and assign to current (selected) material slot."),
             ("3", "New slot", "Create material and assign to new material slot."),
+            ("4", "Add to catalog", "Add textures to catalog without importing."),
         ),
-        default="3",
-    )
-
-    project_tx_path: bpy.props.StringProperty(
-        name="Project textures",
-        description="Path to local textures dir for this project.",
-        default="//Textures",
+        default="2",
     )
 
     import_ref: bpy.props.EnumProperty(
         name="Reference",
         description="Which image files to reference from Image Texture(s).",
         items=(
-            ("0", "Given", "Reference from given path. Can't be used with zip."),
+            ("0", "Original", "Reference from original path. Can't be used with zip."),
             ("1", "Project", "Copy to and use project textures path. Blend must be saved."),
             ("2", "Catalog", "Copy to and use catalog path."),
         ),

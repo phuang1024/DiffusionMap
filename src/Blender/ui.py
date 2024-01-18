@@ -17,7 +17,12 @@ class DMAP_PT_Main(BasePanel, bpy.types.Panel):
     bl_idname = "DMAP_PT_Main"
 
     def draw(self, context):
-        pass
+        layout = self.layout
+        props = context.scene.dmap
+
+        col = layout.column()
+        col.split(factor=0.5)
+        col.prop(props, "project_tx_path")
 
 
 class DMAP_PT_Importer(BasePanel, bpy.types.Panel):
@@ -31,11 +36,14 @@ class DMAP_PT_Importer(BasePanel, bpy.types.Panel):
         props = context.scene.dmap
 
         layout.prop(props, "import_path")
+
         layout.prop(props, "import_action")
 
         layout.prop(props, "import_ref")
-        layout.prop(props, "project_tx_path")
-        layout.prop(props, "save_to_catalog")
+
+        col = layout.column()
+        col.prop(props, "save_to_catalog")
+        col.enabled = (props.import_ref != "2")
 
         layout.operator("dmap.import_from_file", icon="MATERIAL")
 

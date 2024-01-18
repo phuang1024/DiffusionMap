@@ -217,10 +217,22 @@ def importer_main(name, path, action, report):
         do_action(name, maps, action, report)
 
 
-def validate_settings(props) -> bool:
+def validate_settings(context) -> str | None:
     """
-    props: context.scene.dmap
+    return: str = error message; None = validated.
     """
+    props = context.scene.dmap
+    prefs = context.preferences.addons[__package__].preferences
+    if not os.path.exists(props.import_path):
+        return "Path does not exist."
+    if props.import_ref == "1":
+        if not bpy.data.is_saved:
+            return "Reference Project: Blend must be saved."
+    if props.import_ref == "2":
+        if not prefs.catalog_path:
+            return "Reference Catalog: Catalog path not set."
+
+    return None
 
 
 def get_preview_file(path):
