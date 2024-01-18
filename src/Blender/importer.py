@@ -234,6 +234,6 @@ def get_preview_file(path):
 def load_importer_icon(self, context):
     tx_path = context.scene.dmap.import_path
     preview_path = get_preview_file(tx_path)
+    clear_icons("importer")
     if preview_path is not None:
-        load_icon(preview_path, "importer")
-        print("Imported.")
+        load_icon("importer", "preview", preview_path)

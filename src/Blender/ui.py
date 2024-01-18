@@ -1,5 +1,7 @@
 import bpy
 
+from .icons import *
+
 
 class BasePanel:
     """Base panel."""
@@ -36,3 +38,6 @@ class DMAP_PT_Importer(BasePanel, bpy.types.Panel):
         layout.prop(props, "save_to_catalog")
 
         layout.operator("dmap.import_from_file", icon="MATERIAL")
+
+        if icon_exists("importer", "preview"):
+            layout.template_icon(get_icon("importer", "preview"), scale=10)

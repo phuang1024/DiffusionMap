@@ -12,7 +12,7 @@ bl_info = {
 
 import bpy
 
-from .icons import register_icons, unregister_icons
+from .icons import unregister_icons
 from .ops import *
 from .props import *
 from .ui import *
@@ -29,8 +29,6 @@ classes = (
 )
 
 def register():
-    register_icons()
-
     for cls in classes:
         bpy.utils.register_class(cls)
 

@@ -1,6 +1,8 @@
 __all__ = (
     "load_icon",
     "get_icon",
+    "clear_icons",
+    "icon_exists",
 )
 
 """
@@ -10,29 +12,31 @@ Handles loading icons for bpy.
 import bpy
 import bpy.utils.previews
 
-icons_global = None
+icons_global = {}
 
 
-def load_icon(path: str, key: str):
-    assert icons_global is not None
-    if key in icons_global:
-        icons_global.remove(key)
-    icons_global.load(key, path, 'IMAGE')
+def load_icon(key1: str, key2: str, path: str):
+    if key1 not in icons_global:
+        icons_global[key1] = bpy.utils.previews.new()
+    icons_global[key1].load(key2, path, 'IMAGE', force_reload=True)
 
 
-def get_icon(key: str):
-    assert icons_global is not None
-    return icons_global.get(key).icon_id
+def get_icon(key1: str, key2: str):
+    assert key1 in icons_global
+    return icons_global[key1].get(key2).icon_id
 
 
-def register_icons():
-    global icons_global
-    if icons_global is None:
-        icons_global = bpy.utils.previews.new()
+def clear_icons(key1):
+    if key1 in icons_global:
+        bpy.utils.previews.remove(icons_global[key1])
+        del icons_global[key1]
+
+
+def icon_exists(key1: str, key2: str):
+    return key1 in icons_global and key2 in icons_global[key1]
 
 
 def unregister_icons():
-    global icons_global
-    if icons_global:
-        bpy.utils.previews.remove(icons_global)
-        icons_global = None
+    for collection in icons_global.values():
+        bpy.utils.previews.remove(collection)
+    icons_global.clear()
