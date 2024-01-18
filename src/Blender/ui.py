@@ -39,11 +39,12 @@ class DMAP_PT_Importer(BasePanel, bpy.types.Panel):
 
         layout.prop(props, "import_action")
 
-        layout.prop(props, "import_ref")
+        if props.import_action != "4":
+            layout.prop(props, "import_ref")
 
-        col = layout.column()
-        col.prop(props, "save_to_catalog")
-        col.enabled = (props.import_ref != "2")
+            col = layout.column()
+            col.prop(props, "save_to_catalog")
+            col.enabled = (props.import_ref != "2")
 
         layout.operator("dmap.import_from_file", icon="MATERIAL")
 
