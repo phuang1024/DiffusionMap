@@ -37,6 +37,27 @@ def get_map_files(directory):
     return maps
 
 
+def copy_textures_to(original_path: Path, archive_path: Path, name, res):
+    """
+    original_path: User given (e.g. /tmp/Ground012_1K-JPG or /tmp/Ground012_1K-JPG.zip)
+    archive_path: Catalog or project textures (e.g. /Catalog/)
+    return: Path to copied textures (e.g. /Catalog/Ground012/1)
+    """
+    archive_path = Path(bpy.path.abspath(archive_path))
+    archive_path.mkdir(exist_ok=True, parents=True)
+    target_path = archive_path / name / str(res)
+
+    if original_path.is_dir():
+        target_path.parent.mkdir(exist_ok=True, parents=True)
+        shutil.copytree(original_path, target_path, dirs_exist_ok=True)
+    elif original_path.is_file():
+        target_path.mkdir(exist_ok=True, parents=True)
+        with ZipFile(original_path, "r") as zip:
+            zip.extractall(target_path)
+
+    return target_path
+
+
 def importer_main(self, context):
     """
     Call this from operator to load material.
@@ -49,6 +70,7 @@ def importer_main(self, context):
     report: self.report (function).
     """
     props = context.scene.dmap
+    prefs = context.preferences.addons[__package__].preferences
 
     original_path = Path(bpy.path.abspath(props.import_path))
     # TODO add override name feature.
@@ -58,25 +80,15 @@ def importer_main(self, context):
         path = original_path
 
     elif props.import_ref in ("1", "2"):
-        if props.import_ref == "1":
-            project_textures = Path(bpy.path.abspath(props.project_textures))
-            project_textures.mkdir(exist_ok=True, parents=True)
-            path = project_textures / original_name / str(res)
-        else:
-            raise NotImplementedError
-
-        if original_path.is_dir():
-            path.parent.mkdir(exist_ok=True, parents=True)
-            shutil.copytree(original_path, path, dirs_exist_ok=True)
-        elif original_path.is_file():
-            path.mkdir(exist_ok=True, parents=True)
-            with ZipFile(original_path, "r") as zip:
-                zip.extractall(path)
-
+        archive_path = props.project_textures if props.import_ref == "1" else prefs.catalog_path
+        path = copy_textures_to(original_path, archive_path, original_name, res)
         path = str(path)
 
     else:
         raise RuntimeError("This should never happen.")
+
+    if props.save_to_catalog and props.import_ref != "2":
+        copy_textures_to(original_path, prefs.catalog_path, original_name, res)
 
     maps = get_map_files(path)
     import_material(original_name, maps, props.import_action, self.report)
@@ -102,6 +114,9 @@ def validate_settings(context) -> str | None:
     if props.import_ref == "2":
         if not prefs.catalog_path:
             return "Reference Catalog: Catalog path not set."
+
+    if props.save_to_catalog and not prefs.catalog_path:
+        return "Save to catalog: Catalog path not set."
 
     return None
 
