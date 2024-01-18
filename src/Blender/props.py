@@ -1,5 +1,21 @@
 import bpy
 
+from .importer import load_importer_icon
+
+
+class DMAP_Prefs(bpy.types.AddonPreferences):
+    bl_idname = __package__
+
+    catalog_path: bpy.props.StringProperty(
+        name="Catalog path",
+        description="Path to catalog (local textures storage bank) dir.",
+        subtype="DIR_PATH",
+    )
+
+    def draw(self, context):
+        layout = self.layout
+        layout.prop(self, "catalog_path")
+
 
 class DMAP_Props(bpy.types.PropertyGroup):
     # Importer props
@@ -9,6 +25,7 @@ class DMAP_Props(bpy.types.PropertyGroup):
         description="Path to material zip or dir.",
         subtype="FILE_PATH",
         default="",
+        update=load_importer_icon,
     )
 
     import_action: bpy.props.EnumProperty(

@@ -12,12 +12,14 @@ bl_info = {
 
 import bpy
 
+from .icons import register_icons, unregister_icons
 from .ops import *
 from .props import *
 from .ui import *
 
 
 classes = (
+    DMAP_Prefs,
     DMAP_Props,
 
     DMAP_OT_ImportFile,
@@ -27,11 +29,17 @@ classes = (
 )
 
 def register():
+    register_icons()
+
     for cls in classes:
         bpy.utils.register_class(cls)
+
     bpy.types.Scene.dmap = bpy.props.PointerProperty(type=DMAP_Props)
 
 def unregister():
+    unregister_icons()
+
     for cls in classes:
         bpy.utils.unregister_class(cls)
+
     del bpy.types.Scene.dmap

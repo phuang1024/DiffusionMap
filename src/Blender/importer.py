@@ -8,6 +8,8 @@ from zipfile import ZipFile
 
 import bpy
 
+from .icons import *
+
 
 def get_map_files(directory):
     """
@@ -219,3 +221,19 @@ def validate_settings(props) -> bool:
     """
     props: context.scene.dmap
     """
+
+
+def get_preview_file(path):
+    if os.path.isdir(path):
+        for file in os.listdir(path):
+            if "_" not in file and file.endswith((".jpg", ".png")):
+                return os.path.join(path, file)
+
+    return None
+
+def load_importer_icon(self, context):
+    tx_path = context.scene.dmap.import_path
+    preview_path = get_preview_file(tx_path)
+    if preview_path is not None:
+        load_icon(preview_path, "importer")
+        print("Imported.")
