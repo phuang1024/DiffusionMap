@@ -18,7 +18,7 @@ class DMAP_Prefs(bpy.types.AddonPreferences):
 
 
 class DMAP_Props(bpy.types.PropertyGroup):
-    project_tx_path: bpy.props.StringProperty(
+    project_textures: bpy.props.StringProperty(
         name="Project textures",
         description="Path to local textures dir for this project.",
         default="//Textures",

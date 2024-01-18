@@ -3,11 +3,15 @@ Functions for material importer.
 """
 
 import os
+import shutil
+from pathlib import Path
+from zipfile import ZipFile
 
 import bpy
 
 from .icons import *
 from .material import import_material
+from .utils import get_name_res
 
 
 def get_map_files(directory):
@@ -33,24 +37,49 @@ def get_map_files(directory):
     return maps
 
 
-def importer_main(name, path, action, report):
+def importer_main(self, context):
     """
     Call this from operator to load material.
+
+    self, context: Passed from operator.
 
     name: Name of material and node group.
     path: Path to zip file or textures directory.
     action: props.import_action
     report: self.report (function).
     """
-    if path.endswith(".zip"):
-        with TemporaryDirectory() as tmp, ZipFile(path) as zip:
-            zip.extractall(tmp)
-            maps = get_map_files(tmp)
-            import_material(name, maps, action, report)
+    props = context.scene.dmap
+
+    original_path = Path(bpy.path.abspath(props.import_path))
+    # TODO add override name feature.
+    original_name, res = get_name_res(original_path.stem)
+
+    if props.import_ref == "0":
+        path = original_path
+
+    elif props.import_ref in ("1", "2"):
+        if props.import_ref == "1":
+            project_textures = Path(bpy.path.abspath(props.project_textures))
+            project_textures.mkdir(exist_ok=True, parents=True)
+            path = project_textures / original_name / str(res)
+        else:
+            raise NotImplementedError
+
+        if original_path.is_dir():
+            path.parent.mkdir(exist_ok=True, parents=True)
+            shutil.copytree(original_path, path, dirs_exist_ok=True)
+        elif original_path.is_file():
+            path.mkdir(exist_ok=True, parents=True)
+            with ZipFile(original_path, "r") as zip:
+                zip.extractall(path)
+
+        path = str(path)
 
     else:
-        maps = get_map_files(path)
-        import_material(name, maps, action, report)
+        raise RuntimeError("This should never happen.")
+
+    maps = get_map_files(path)
+    import_material(original_name, maps, props.import_action, self.report)
 
 
 def validate_settings(context) -> str | None:
@@ -59,13 +88,14 @@ def validate_settings(context) -> str | None:
     """
     props = context.scene.dmap
     prefs = context.preferences.addons[__package__].preferences
+    import_path = bpy.path.abspath(props.import_path)
 
-    if not os.path.exists(props.import_path):
+    if not os.path.exists(import_path):
         return "Path does not exist."
 
     if props.import_ref == "0":
-        if os.path.isfile(props.import_path):
-            return "Reference File: Path must be directory (cannot be a zip file)."
+        if os.path.isfile(import_path):
+            return "Reference Original: Path must be directory (cannot be a zip file)."
     if props.import_ref == "1":
         if not bpy.data.is_saved:
             return "Reference Project: Blend must be saved."
@@ -85,7 +115,7 @@ def get_preview_file(path):
     return None
 
 def load_importer_icon(self, context):
-    tx_path = context.scene.dmap.import_path
+    tx_path = bpy.path.abspath(context.scene.dmap.import_path)
     preview_path = get_preview_file(tx_path)
     clear_icons("importer")
     if preview_path is not None:

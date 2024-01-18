@@ -22,7 +22,7 @@ class DMAP_PT_Main(BasePanel, bpy.types.Panel):
 
         col = layout.column()
         col.split(factor=0.5)
-        col.prop(props, "project_tx_path")
+        col.prop(props, "project_textures")
 
 
 class DMAP_PT_Importer(BasePanel, bpy.types.Panel):
