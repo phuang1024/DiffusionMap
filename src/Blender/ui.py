@@ -42,33 +42,32 @@ class DMAP_PT_Main(BasePanel, bpy.types.Panel):
             if icon_exists("importer", "preview"):
                 box.template_icon(get_icon("importer", "preview"), scale=5)
 
-        layout.prop(props, "import_action")
-        layout.prop(props, "override_name")
+        layout.separator()
 
-        layout.operator("dmap.import_from_file", icon="MATERIAL")
+        # Import destination
+        col = layout.column(align=True)
+        col.prop(props, "import_enabled", toggle=True, text="Import material node group")
+        box = col.box()
 
+        if props.import_enabled:
+            box.prop(props, "import_action")
+            box.prop(props, "override_name")
+            box.prop(props, "import_ref")
 
-"""
-class DMAP_PT_Importer(BasePanel, bpy.types.Panel):
-    bl_label = "Importer"
-    bl_parent_id = "DMAP_PT_Main"
-    bl_options = {"DEFAULT_CLOSED"}
+        layout.separator()
 
-    def draw(self, context):
-        layout = self.layout
-        props = context.scene.dmap
+        # Catalog destination
+        col = layout.column(align=True)
+        col.prop(props, "catalog_enabled", toggle=True, text="Add to catalog")
+        box = col.box()
 
-        layout.prop(props, "import_path")
+        if props.catalog_enabled:
+            if props.source == "1":
+                box.label(text="Source is catalog, nothing to do.", icon="INFO")
+            else:
+                box.label(text="Will add to catalog.")
 
-        if props.import_action != "4":
-            layout.prop(props, "import_ref")
+        layout.separator()
 
-            col = layout.column()
-            col.prop(props, "save_to_catalog")
-            col.enabled = (props.import_ref != "2")
-
-        layout.operator("dmap.import_from_file", icon="MATERIAL")
-
-        if icon_exists("importer", "preview"):
-            layout.template_icon(get_icon("importer", "preview"), scale=10)
-"""
+        # Go
+        layout.operator("dmap.main", icon="MATERIAL")

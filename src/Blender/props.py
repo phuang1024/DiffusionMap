@@ -24,6 +24,8 @@ class DMAP_Props(bpy.types.PropertyGroup):
         default="//Textures",
     )
 
+    # Source
+
     source: bpy.props.EnumProperty(
         name="Source",
         description="Where the texture image comes from.",
@@ -44,6 +46,14 @@ class DMAP_Props(bpy.types.PropertyGroup):
         update=load_importer_icon,
     )
 
+    # Import destination
+
+    import_enabled: bpy.props.BoolProperty(
+        name="Import material node group",
+        description="Whether to import texture as PBR material node group.",
+        default=True,
+    )
+
     import_action: bpy.props.EnumProperty(
         name="Action",
         items=(
@@ -51,7 +61,6 @@ class DMAP_Props(bpy.types.PropertyGroup):
             ("1", "Material", "Create material datablock."),
             ("2", "Current slot", "Create material and assign to current (selected) material slot."),
             ("3", "New slot", "Create material and assign to new material slot."),
-            #("4", "Add to catalog", "Add textures to catalog without importing."),
         ),
         default="2",
     )
@@ -67,13 +76,15 @@ class DMAP_Props(bpy.types.PropertyGroup):
         default="0",
     )
 
-    save_to_catalog: bpy.props.BoolProperty(
-        name="Save to catalog",
-        description="Also save textures to catalog.",
-        default=True,
-    )
-
     override_name: bpy.props.StringProperty(
         name="Override name",
         description="Override name of material and node group (blank to disable).",
+    )
+
+    # Catalog destination
+
+    catalog_enabled: bpy.props.BoolProperty(
+        name="Add to catalog",
+        description="Whether to add texture to catalog.",
+        default=True,
     )
