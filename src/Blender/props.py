@@ -62,3 +62,8 @@ class DMAP_Props(bpy.types.PropertyGroup):
         description="Also save textures to catalog.",
         default=True,
     )
+
+    override_name: bpy.props.StringProperty(
+        name="Override name",
+        description="Override name of material and node group (blank to disable).",
+    )

@@ -20,9 +20,12 @@ class DMAP_PT_Main(BasePanel, bpy.types.Panel):
         layout = self.layout
         props = context.scene.dmap
 
-        col = layout.column()
-        col.split(factor=0.5)
-        col.prop(props, "project_textures")
+        layout.prop(props, "project_textures")
+
+        layout.separator()
+
+        layout.prop(props, "import_action")
+        layout.prop(props, "override_name")
 
 
 class DMAP_PT_Importer(BasePanel, bpy.types.Panel):
@@ -36,8 +39,6 @@ class DMAP_PT_Importer(BasePanel, bpy.types.Panel):
         props = context.scene.dmap
 
         layout.prop(props, "import_path")
-
-        layout.prop(props, "import_action")
 
         if props.import_action != "4":
             layout.prop(props, "import_ref")
