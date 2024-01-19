@@ -12,7 +12,6 @@ class BasePanel:
 
 
 class DMAP_PT_Main(BasePanel, bpy.types.Panel):
-    """Main panel."""
     bl_label = "Diffusion Map"
     bl_idname = "DMAP_PT_Main"
 
@@ -24,12 +23,33 @@ class DMAP_PT_Main(BasePanel, bpy.types.Panel):
 
         layout.separator()
 
+        # Source
+        col = layout.column(align=True)
+
+        col_source_prop = col.column(align=True)
+        row1 = col_source_prop.row(align=True)
+        row1.prop_enum(props, "source", "0")
+        row1.prop_enum(props, "source", "1")
+        row2 = col_source_prop.row(align=True)
+        row2.prop_enum(props, "source", "2")
+        row2.prop_enum(props, "source", "3")
+
+        box = col.box()
+
+        if props.source == "0":
+            box.prop(props, "local_texture_path")
+
+            if icon_exists("importer", "preview"):
+                box.template_icon(get_icon("importer", "preview"), scale=5)
+
         layout.prop(props, "import_action")
         layout.prop(props, "override_name")
 
+        layout.operator("dmap.import_from_file", icon="MATERIAL")
 
+
+"""
 class DMAP_PT_Importer(BasePanel, bpy.types.Panel):
-    """Importer panel."""
     bl_label = "Importer"
     bl_parent_id = "DMAP_PT_Main"
     bl_options = {"DEFAULT_CLOSED"}
@@ -51,3 +71,4 @@ class DMAP_PT_Importer(BasePanel, bpy.types.Panel):
 
         if icon_exists("importer", "preview"):
             layout.template_icon(get_icon("importer", "preview"), scale=10)
+"""

@@ -24,9 +24,19 @@ class DMAP_Props(bpy.types.PropertyGroup):
         default="//Textures",
     )
 
-    # Importer props
+    source: bpy.props.EnumProperty(
+        name="Source",
+        description="Where the texture image comes from.",
+        items=(
+            ("0", "Local", "Local zip file or directory."),
+            ("1", "Catalog", "Texture stored in the catalog."),
+            ("2", "Web", "Search and download from AmbientCG."),
+            ("3", "Diffusion", "Generate with a diffusion neural network."),
+        ),
+        default="0",
+    )
 
-    import_path: bpy.props.StringProperty(
+    local_texture_path: bpy.props.StringProperty(
         name="Path",
         description="Path to material zip or dir.",
         subtype="FILE_PATH",
@@ -41,7 +51,7 @@ class DMAP_Props(bpy.types.PropertyGroup):
             ("1", "Material", "Create material datablock."),
             ("2", "Current slot", "Create material and assign to current (selected) material slot."),
             ("3", "New slot", "Create material and assign to new material slot."),
-            ("4", "Add to catalog", "Add textures to catalog without importing."),
+            #("4", "Add to catalog", "Add textures to catalog without importing."),
         ),
         default="2",
     )

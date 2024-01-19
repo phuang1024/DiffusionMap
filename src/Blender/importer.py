@@ -72,8 +72,7 @@ def importer_main(self, context):
     props = context.scene.dmap
     prefs = context.preferences.addons[__package__].preferences
 
-    original_path = Path(bpy.path.abspath(props.import_path))
-    # TODO add override name feature.
+    original_path = Path(bpy.path.abspath(props.local_texture_path))
     original_name, res = get_name_res(original_path.stem)
 
     if props.import_ref == "0":
@@ -91,7 +90,8 @@ def importer_main(self, context):
         copy_textures_to(original_path, prefs.catalog_path, original_name, res)
 
     maps = get_map_files(path)
-    import_material(original_name, maps, props.import_action, self.report)
+    name = props.override_name if props.override_name else original_name
+    import_material(name, maps, props.import_action, self.report)
 
 
 def validate_settings(context) -> str | None:
@@ -100,13 +100,13 @@ def validate_settings(context) -> str | None:
     """
     props = context.scene.dmap
     prefs = context.preferences.addons[__package__].preferences
-    import_path = bpy.path.abspath(props.import_path)
+    local_texture_path = bpy.path.abspath(props.local_texture_path)
 
-    if not os.path.exists(import_path):
+    if not os.path.exists(local_texture_path):
         return "Path does not exist."
 
     if props.import_ref == "0":
-        if os.path.isfile(import_path):
+        if os.path.isfile(local_texture_path):
             return "Reference Original: Path must be directory (cannot be a zip file)."
     if props.import_ref == "1":
         if not bpy.data.is_saved:
@@ -130,7 +130,7 @@ def get_preview_file(path):
     return None
 
 def load_importer_icon(self, context):
-    tx_path = bpy.path.abspath(context.scene.dmap.import_path)
+    tx_path = bpy.path.abspath(context.scene.dmap.local_texture_path)
     preview_path = get_preview_file(tx_path)
     clear_icons("importer")
     if preview_path is not None:

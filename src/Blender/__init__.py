@@ -25,7 +25,7 @@ classes = (
     DMAP_OT_ImportFile,
 
     DMAP_PT_Main,
-    DMAP_PT_Importer,
+    #DMAP_PT_Importer,
 )
 
 def register():
