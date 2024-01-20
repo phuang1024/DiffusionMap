@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import bpy
-from bpy.props import StringProperty
 
 from .execute import execute_main, validate_settings, get_source
 
@@ -20,6 +19,17 @@ class DMAP_OT_Main(bpy.types.Operator):
         else:
             execute_main(self, context)
             return {"FINISHED"}
+
+
+class DMAP_OT_WebSearch(bpy.types.Operator):
+    """Search for textures on AmbientCG."""
+    bl_idname = "dmap.web_search"
+    bl_label = "Search"
+    bl_options = {"REGISTER"}
+
+    def execute(self, context):
+        # TODO
+        return {"FINISHED"}
 
 
 class DMAP_OT_ExportSource(bpy.types.Operator):

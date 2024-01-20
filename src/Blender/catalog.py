@@ -29,6 +29,7 @@ class Asset:
             self.name = self.path.parent.name
         else:
             self.name, self.res = get_name_res(self.path.stem)
+        self.id = f"{self.name}_{self.res}K"
 
     def get_maps(self) -> dict[str, Path]:
         """
@@ -56,7 +57,7 @@ class Asset:
         return maps
 
     def export(self, path: Path):
-        export_path = path / f"{self.name}_{self.res}K"
+        export_path = path / self.id
         export_path.mkdir(exist_ok=True, parents=True)
         for f in self.path.iterdir():
             shutil.copy(f, export_path)
@@ -107,3 +108,25 @@ class Catalog:
                 zip.extractall(target_path)
 
         return target_path
+
+    def iter_textures(self) -> dict[str, list[int]]:
+        """
+        return {
+            Asset001: [1, 2, 4, 8],
+            ...
+        }
+        """
+        textures = {}
+        for asset in self.root.iterdir():
+            if asset.is_dir():
+                if self.type == CatalogType.GLOBAL:
+                    name = asset.name
+                    res = [int(f.name) for f in asset.iterdir()]
+                    textures[name] = res
+                elif self.type == CatalogType.PROJECT:
+                    name, res = get_name_res(asset.name)
+                    if name not in textures:
+                        textures[name] = []
+                    textures[name].append(res)
+
+        return textures

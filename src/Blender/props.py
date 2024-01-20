@@ -46,6 +46,20 @@ class DMAP_Props(bpy.types.PropertyGroup):
         update=load_importer_icon,
     )
 
+    web_query: bpy.props.StringProperty(
+        name="Query",
+        description="Search query for AmbientCG.",
+        default="",
+    )
+
+    web_limit: bpy.props.IntProperty(
+        name="Limit",
+        description="Maximum number of results to display.",
+        default=10,
+        min=1,
+        max=100,
+    )
+
     # Import destination
 
     import_enabled: bpy.props.BoolProperty(

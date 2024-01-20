@@ -42,6 +42,13 @@ class DMAP_PT_Main(BasePanel, bpy.types.Panel):
             if icon_exists("importer", "preview"):
                 box.template_icon(get_icon("importer", "preview"), scale=5)
 
+        elif props.source == "2":
+            subcol = box.column(align=True)
+            row = subcol.row(align=True)
+            row.prop(props, "web_query")
+            row.prop(props, "web_limit")
+            subcol.operator("dmap.web_search", icon="VIEWZOOM")
+
         box.separator()
 
         box.operator("dmap.export_source", icon="EXPORT")
