@@ -23,6 +23,7 @@ classes = (
     DMAP_Props,
 
     DMAP_OT_Main,
+    DMAP_OT_ExportSource,
 
     DMAP_PT_Main,
 )

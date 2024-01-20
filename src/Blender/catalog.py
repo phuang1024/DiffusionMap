@@ -55,6 +55,14 @@ class Asset:
 
         return maps
 
+    def export(self, path: Path):
+        export_path = path / f"{self.name}_{self.res}K"
+        export_path.mkdir(exist_ok=True, parents=True)
+        for f in self.path.iterdir():
+            shutil.copy(f, export_path)
+
+        return export_path
+
 
 class CatalogType(Enum):
     """See docs for description."""

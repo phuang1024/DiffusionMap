@@ -42,7 +42,11 @@ class DMAP_PT_Main(BasePanel, bpy.types.Panel):
             if icon_exists("importer", "preview"):
                 box.template_icon(get_icon("importer", "preview"), scale=5)
 
-        layout.separator()
+        box.separator()
+
+        box.operator("dmap.export_source", icon="EXPORT")
+
+        layout.separator(factor=2)
 
         # Import destination
         col = layout.column(align=True)
@@ -54,7 +58,7 @@ class DMAP_PT_Main(BasePanel, bpy.types.Panel):
             box.prop(props, "override_name")
             box.prop(props, "import_ref")
 
-        layout.separator()
+        layout.separator(factor=2)
 
         # Catalog destination
         col = layout.column(align=True)
@@ -67,7 +71,7 @@ class DMAP_PT_Main(BasePanel, bpy.types.Panel):
             else:
                 box.label(text="Will add to catalog.")
 
-        layout.separator()
+        layout.separator(factor=2)
 
         # Go
         layout.operator("dmap.main", icon="MATERIAL")
