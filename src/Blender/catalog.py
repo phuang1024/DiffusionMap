@@ -109,10 +109,13 @@ class Catalog:
 
         return target_path
 
-    def iter_textures(self) -> dict[str, list[int]]:
+    def iter_textures(self) -> dict[str, dict[str, int]]:
         """
         return {
-            Asset001: [1, 2, 4, 8],
+            Asset001: {
+                1: /path/to/Asset001_1K,
+                ...
+            }
             ...
         }
         """
@@ -121,12 +124,15 @@ class Catalog:
             if asset.is_dir():
                 if self.type == CatalogType.GLOBAL:
                     name = asset.name
-                    res = [int(f.name) for f in asset.iterdir()]
-                    textures[name] = res
+                    if name not in textures:
+                        textures[name] = {}
+                    for res in asset.iterdir():
+                        if res.is_dir():
+                            textures[name][int(res.name)] = res
                 elif self.type == CatalogType.PROJECT:
                     name, res = get_name_res(asset.name)
                     if name not in textures:
-                        textures[name] = []
-                    textures[name].append(res)
+                        textures[name] = {}
+                    textures[name][res] = asset
 
         return textures

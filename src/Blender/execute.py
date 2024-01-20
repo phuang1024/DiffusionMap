@@ -96,7 +96,7 @@ def validate_settings(context) -> str | None:
     # Check source
     if props.source == "0":
         local_texture_path = Path(bpy.path.abspath(props.local_texture_path))
-        if not local_texture_path.exists():
+        if not local_texture_path.exists() or not props.local_texture_path:
             return "Source: Local file: Path does not exist."
 
     source = get_source(context)

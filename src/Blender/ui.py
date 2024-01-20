@@ -3,6 +3,14 @@ import bpy
 from .icons import icon_exists, get_icon
 
 
+class DMAP_UL_TextureList(bpy.types.UIList):
+    """Draw a list of textures."""
+
+    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
+        # TODO icons
+        layout.label(text=item.id)
+
+
 class BasePanel:
     """Base panel."""
     bl_space_type = "PROPERTIES"
@@ -16,6 +24,18 @@ class DMAP_PT_Main(BasePanel, bpy.types.Panel):
     bl_idname = "DMAP_PT_Main"
 
     def draw(self, context):
+        def draw_texlist(layout):
+            col = layout.column(align=True)
+            col.template_list("DMAP_UL_TextureList", "", props, "source_texlist", props, "source_texlist_index", rows=4)
+            col.operator("dmap.texlist_refresh", icon="FILE_REFRESH")
+
+        def draw_dropdown(layout, prop, text):
+            icon = "TRIA_DOWN" if getattr(props, prop) else "TRIA_RIGHT"
+            col = layout.column(align=True)
+            col.prop(props, prop, text=text, toggle=True, icon=icon)
+            box = col.box()
+            return box
+
         layout = self.layout
         props = context.scene.dmap
 
@@ -42,7 +62,12 @@ class DMAP_PT_Main(BasePanel, bpy.types.Panel):
             if icon_exists("importer", "preview"):
                 box.template_icon(get_icon("importer", "preview"), scale=5)
 
+        elif props.source == "1":
+            draw_texlist(box)
+
         elif props.source == "2":
+            draw_texlist(box)
+
             subcol = box.column(align=True)
             row = subcol.row(align=True)
             row.prop(props, "web_query")
@@ -53,24 +78,20 @@ class DMAP_PT_Main(BasePanel, bpy.types.Panel):
 
         box.operator("dmap.export_source", icon="EXPORT")
 
-        layout.separator(factor=2)
+        layout.separator(factor=3)
 
         # Import destination
-        col = layout.column(align=True)
-        col.prop(props, "import_enabled", toggle=True, text="Import material node group")
-        box = col.box()
+        box = draw_dropdown(layout, "import_enabled", "Import material node group")
 
         if props.import_enabled:
             box.prop(props, "import_action")
             box.prop(props, "override_name")
             box.prop(props, "import_ref")
 
-        layout.separator(factor=2)
+        layout.separator(factor=3)
 
         # Catalog destination
-        col = layout.column(align=True)
-        col.prop(props, "catalog_enabled", toggle=True, text="Add to catalog")
-        box = col.box()
+        box = draw_dropdown(layout, "catalog_enabled", "Add to catalog")
 
         if props.catalog_enabled:
             if props.source == "1":
@@ -78,7 +99,9 @@ class DMAP_PT_Main(BasePanel, bpy.types.Panel):
             else:
                 box.label(text="Will add to catalog.")
 
-        layout.separator(factor=2)
+        layout.separator(factor=3)
 
         # Go
-        layout.operator("dmap.main", icon="MATERIAL")
+        row = layout.row()
+        row.scale_y = 2
+        row.operator("dmap.main", icon="MATERIAL")

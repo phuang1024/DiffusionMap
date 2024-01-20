@@ -1,8 +1,9 @@
+import os
 from pathlib import Path
 
 import bpy
 
-from .execute import execute_main, validate_settings, get_source
+from .execute import Catalog, CatalogType, execute_main, validate_settings, get_source
 
 
 class DMAP_OT_Main(bpy.types.Operator):
@@ -19,6 +20,39 @@ class DMAP_OT_Main(bpy.types.Operator):
         else:
             execute_main(self, context)
             return {"FINISHED"}
+
+
+class DMAP_OT_TexlistRefresh(bpy.types.Operator):
+    """Refresh the texture list."""
+    bl_idname = "dmap.texlist_refresh"
+    bl_label = "Refresh"
+    bl_options = {"REGISTER"}
+
+    def execute(self, context):
+        props = context.scene.dmap
+        prefs = context.preferences.addons[__package__].preferences
+
+        props.source_texlist.clear()
+
+        if props.source == "1":
+            catalog = Catalog(CatalogType.GLOBAL, prefs.catalog_path)
+            results = catalog.iter_textures()
+
+            for id in sorted(results.keys()):
+                res = ""
+                paths = ""
+                for r, p in results[id].items():
+                    res += f"{r} "
+                    paths += f"{p}{os.path.pathsep}"
+                res = res.strip()
+                paths = paths.strip(os.path.pathsep)
+
+                p = props.source_texlist.add()
+                p.id = id
+                p.res = res
+                p.path = paths
+
+        return {"FINISHED"}
 
 
 class DMAP_OT_WebSearch(bpy.types.Operator):

@@ -1,12 +1,22 @@
 import bpy
+from bpy.props import *
 
 from .icons import load_importer_icon
+
+
+class DMAP_Asset(bpy.types.PropertyGroup):
+    """Asset data structure for the texture list."""
+    id: StringProperty()
+    # Space separated available resolutions, e.g. "1 2 4 8"
+    res: StringProperty()
+    # os.path.pathsep separated paths corresponding to resolutions.
+    path: StringProperty()
 
 
 class DMAP_Prefs(bpy.types.AddonPreferences):
     bl_idname = __package__
 
-    catalog_path: bpy.props.StringProperty(
+    catalog_path: StringProperty(
         name="Catalog path",
         description="Path to catalog (local textures storage bank) dir.",
         subtype="DIR_PATH",
@@ -18,7 +28,7 @@ class DMAP_Prefs(bpy.types.AddonPreferences):
 
 
 class DMAP_Props(bpy.types.PropertyGroup):
-    project_textures: bpy.props.StringProperty(
+    project_textures: StringProperty(
         name="Project textures",
         description="Path to local textures dir for this project.",
         default="//Textures",
@@ -26,7 +36,7 @@ class DMAP_Props(bpy.types.PropertyGroup):
 
     # Source
 
-    source: bpy.props.EnumProperty(
+    source: EnumProperty(
         name="Source",
         description="Where the texture image comes from.",
         items=(
@@ -38,7 +48,7 @@ class DMAP_Props(bpy.types.PropertyGroup):
         default="0",
     )
 
-    local_texture_path: bpy.props.StringProperty(
+    local_texture_path: StringProperty(
         name="Path",
         description="Path to material zip or dir.",
         subtype="FILE_PATH",
@@ -46,13 +56,13 @@ class DMAP_Props(bpy.types.PropertyGroup):
         update=load_importer_icon,
     )
 
-    web_query: bpy.props.StringProperty(
+    web_query: StringProperty(
         name="Query",
         description="Search query for AmbientCG.",
         default="",
     )
 
-    web_limit: bpy.props.IntProperty(
+    web_limit: IntProperty(
         name="Limit",
         description="Maximum number of results to display.",
         default=10,
@@ -60,15 +70,18 @@ class DMAP_Props(bpy.types.PropertyGroup):
         max=100,
     )
 
+    source_texlist: CollectionProperty(type=DMAP_Asset)
+    source_texlist_index: IntProperty()
+
     # Import destination
 
-    import_enabled: bpy.props.BoolProperty(
+    import_enabled: BoolProperty(
         name="Import material node group",
         description="Whether to import texture as PBR material node group.",
         default=True,
     )
 
-    import_action: bpy.props.EnumProperty(
+    import_action: EnumProperty(
         name="Action",
         items=(
             ("0", "Node group", "Create shader node group."),
@@ -79,7 +92,7 @@ class DMAP_Props(bpy.types.PropertyGroup):
         default="2",
     )
 
-    import_ref: bpy.props.EnumProperty(
+    import_ref: EnumProperty(
         name="Reference",
         description="Which image files to reference from Image Texture(s).",
         items=(
@@ -90,14 +103,14 @@ class DMAP_Props(bpy.types.PropertyGroup):
         default="0",
     )
 
-    override_name: bpy.props.StringProperty(
+    override_name: StringProperty(
         name="Override name",
         description="Override name of material and node group (blank to disable).",
     )
 
     # Catalog destination
 
-    catalog_enabled: bpy.props.BoolProperty(
+    catalog_enabled: BoolProperty(
         name="Add to catalog",
         description="Whether to add texture to catalog.",
         default=True,

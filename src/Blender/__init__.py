@@ -19,12 +19,17 @@ from .ui import *
 
 
 classes = (
+    DMAP_Asset,
+
     DMAP_Prefs,
     DMAP_Props,
 
     DMAP_OT_Main,
+    DMAP_OT_TexlistRefresh,
     DMAP_OT_WebSearch,
     DMAP_OT_ExportSource,
+
+    DMAP_UL_TextureList,
 
     DMAP_PT_Main,
 )
