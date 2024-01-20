@@ -1,6 +1,6 @@
 import bpy
 
-from .importer import load_importer_icon
+from .icons import load_importer_icon
 
 
 class DMAP_Prefs(bpy.types.AddonPreferences):

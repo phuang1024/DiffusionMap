@@ -3,36 +3,42 @@ Data structure for handling texture storage.
 See docs for file structure.
 """
 
+import shutil
 from enum import Enum
 from pathlib import Path
+from zipfile import ZipFile
 
 
-class CatalogType(Enum):
-    """See docs for description."""
-    GLOBAL = 1
-    PROJECT = 2
+def get_name_res(filename: str):
+    """
+    Ground012_1K
+    Ground012_1K-JPG
+    Ground012_1K-JPG.zip
+    -> ("Ground012", 1)
+    """
+    name = filename.split("_")[0]
+    res = int(filename.split("_")[1].split("-")[0][:-1])
+    return name, res
 
 
-class Catalog:
-    def __init__(self, type, root):
-        self.type = type
-        self.root = Path(root)
+class Asset:
+    def __init__(self, path):
+        self.path = Path(path)
+        if self.path.stem.isdigit():
+            self.res = int(self.path.stem)
+            self.name = self.path.parent.name
+        else:
+            self.name, self.res = get_name_res(self.path.stem)
 
-    def get_asset_path(self, name, res):
-        if self.type == CatalogType.GLOBAL:
-            return self.root / name / res
-        elif self.type == CatalogType.PROJECT:
-            return self.root / f"{name}_{res}K"
-        raise ValueError("Invalid catalog type.")
-
-    def get_map_files(self, name, res):
+    def get_maps(self) -> dict[str, Path]:
         """
         Returns dict of map name to absolute file path.
         """
-        path = self.get_asset_path(name, res)
-        maps = {}
+        if self.path.is_file():
+            raise ValueError("Cannot get maps of zip Asset.")
 
-        for f in path.iterdir():
+        maps = {}
+        for f in self.path.iterdir():
             name = f.name.lower()
             if "color" in name:
                 maps["color"] = f
@@ -48,3 +54,48 @@ class Catalog:
                 maps["preview"] = f
 
         return maps
+
+
+class CatalogType(Enum):
+    """See docs for description."""
+    GLOBAL = 1
+    PROJECT = 2
+
+
+class Catalog:
+    def __init__(self, type, root):
+        self.type = type
+        self.root = Path(root)
+
+    def get_asset(self, name, res) -> Asset:
+        if self.type == CatalogType.GLOBAL:
+            path = self.root / name / str(res)
+        elif self.type == CatalogType.PROJECT:
+            path = self.root / f"{name}_{res}K"
+        else:
+            raise ValueError("Invalid catalog type.")
+
+        return Asset(path)
+
+    def get_asset_path(self, name, res) -> Path:
+        return self.get_asset(name, res).path
+
+    def copy_textures(self, tx_path: Path):
+        """
+        Copy external textures to this catalog.
+        Destination path is determined by the name and resolution of the source path.
+
+        tx_path: e.g. /tmp/Ground012_1K-JPG or /tmp/Ground012_1K-JPG.zip
+        """
+        name, res = get_name_res(tx_path.name)
+        target_path = self.get_asset_path(name, res)
+
+        if tx_path.is_dir():
+            target_path.parent.mkdir(exist_ok=True, parents=True)
+            shutil.copytree(tx_path, target_path, dirs_exist_ok=True)
+        elif tx_path.is_file():
+            target_path.mkdir(exist_ok=True, parents=True)
+            with ZipFile(tx_path, "r") as zip:
+                zip.extractall(target_path)
+
+        return target_path

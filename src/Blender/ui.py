@@ -1,6 +1,6 @@
 import bpy
 
-from .icons import *
+from .icons import icon_exists, get_icon
 
 
 class BasePanel:
