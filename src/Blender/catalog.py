@@ -8,8 +8,6 @@ from enum import Enum
 from pathlib import Path
 from zipfile import ZipFile
 
-import bpy
-
 
 def get_name_res(filename: str):
     """
@@ -91,22 +89,28 @@ class Catalog:
     def get_asset_path(self, name, res) -> Path:
         return self.get_asset(name, res).path
 
-    def copy_textures(self, tx_path: Path):
+    def copy_textures(self, source: Asset, symlink: bool = False):
         """
         Copy external textures to this catalog.
         Destination path is determined by the name and resolution of the source path.
 
-        tx_path: e.g. /tmp/Ground012_1K-JPG or /tmp/Ground012_1K-JPG.zip
+        source: Source Asset object.
+        symlink: if True, create symlink instead of copying. Can only be used with directory.
         """
-        name, res = get_name_res(tx_path.name)
-        target_path = self.get_asset_path(name, res)
+        target_path = self.get_asset_path(source.name, source.res)
 
-        if tx_path.is_dir():
+        if source.path.is_dir():
             target_path.parent.mkdir(exist_ok=True, parents=True)
-            shutil.copytree(tx_path, target_path, dirs_exist_ok=True)
-        elif tx_path.is_file():
+            if symlink:
+                target_path.symlink_to(source.path, target_is_directory=True)
+            else:
+                shutil.copytree(source.path, target_path, dirs_exist_ok=True)
+
+        elif source.path.is_file():
+            if symlink:
+                raise ValueError("Cannot create symlink for zip file.")
             target_path.mkdir(exist_ok=True, parents=True)
-            with ZipFile(tx_path, "r") as zip:
+            with ZipFile(source.path, "r") as zip:
                 zip.extractall(target_path)
 
         return target_path

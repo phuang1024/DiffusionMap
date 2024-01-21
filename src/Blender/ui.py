@@ -62,9 +62,6 @@ class DMAP_PT_Main(BasePanel, bpy.types.Panel):
         if props.source == "0":
             box.prop(props, "local_texture_path")
 
-            if icon_exists("importer", "preview"):
-                box.template_icon(get_icon("importer", "preview"), scale=5)
-
         elif props.source == "1":
             draw_texlist(box)
 
@@ -76,6 +73,9 @@ class DMAP_PT_Main(BasePanel, bpy.types.Panel):
             row.prop(props, "web_query")
             row.prop(props, "web_limit")
             subcol.operator("dmap.web_search", icon="VIEWZOOM")
+
+        if icon_exists("importer", "preview"):
+            box.template_icon(get_icon("importer", "preview"), scale=5)
 
         box.separator()
 
@@ -90,6 +90,8 @@ class DMAP_PT_Main(BasePanel, bpy.types.Panel):
             box.prop(props, "import_action")
             box.prop(props, "override_name")
             box.prop(props, "import_ref")
+            if props.import_ref == "1":
+                box.prop(props, "copy_type")
 
         layout.separator(factor=3)
 

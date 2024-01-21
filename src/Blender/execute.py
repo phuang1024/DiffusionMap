@@ -57,7 +57,7 @@ def execute_import(self, context, source: Asset):
             archive_type = CatalogType.GLOBAL
         archive = Catalog(archive_type, bpy.path.abspath(archive_path))
 
-        path = archive.copy_textures(source.path)
+        path = archive.copy_textures(source, symlink=(props.copy_type == "1"))
         path = str(path)
 
     else:
@@ -75,7 +75,7 @@ def execute_copy_to_catalog(self, context, source: Asset):
 
     if props.import_ref != "2":
         catalog = Catalog(CatalogType.GLOBAL, bpy.path.abspath(prefs.catalog_path))
-        catalog.copy_textures(source.path)
+        catalog.copy_textures(source)
 
 
 def execute_main(self, context):

@@ -98,7 +98,7 @@ class DMAP_Props(bpy.types.PropertyGroup):
     )
 
     import_action: EnumProperty(
-        name="Action",
+        name="Destination",
         items=(
             ("0", "Node group", "Create shader node group."),
             ("1", "Material", "Create material datablock."),
@@ -117,6 +117,16 @@ class DMAP_Props(bpy.types.PropertyGroup):
             ("2", "Catalog", "Copy to and use catalog path."),
         ),
         default="0",
+    )
+
+    copy_type: EnumProperty(
+        name="Copy type",
+        description="Copy or symlink to project textures path.",
+        items=(
+            ("0", "Copy", "Copy files. Uses more disk space."),
+            ("1", "Symlink", "Symlink files. Uses less disk space."),
+        ),
+        default="1",
     )
 
     override_name: StringProperty(
