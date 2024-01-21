@@ -61,6 +61,7 @@ class DMAP_Props(bpy.types.PropertyGroup):
             ("3", "Diffusion", "Generate with a diffusion neural network."),
         ),
         default="0",
+        update=load_importer_icon,
     )
 
     local_texture_path: StringProperty(
@@ -86,7 +87,7 @@ class DMAP_Props(bpy.types.PropertyGroup):
     )
 
     texlist: CollectionProperty(type=DMAP_Asset)
-    texlist_index: IntProperty()
+    texlist_index: IntProperty(update=load_importer_icon)
     texlist_res: EnumProperty(items=get_texlist_res_items)
 
     # Import destination

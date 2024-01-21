@@ -75,8 +75,9 @@ class DMAP_PT_Main(BasePanel, bpy.types.Panel):
             row.prop(props, "web_limit")
             subcol.operator("dmap.web_search", icon="VIEWZOOM")
 
-        if icon_exists("importer", "preview"):
-            box.template_icon(get_icon("importer", "preview"), scale=5)
+        # Draw large preview icon.
+        if icon_exists("source", "preview"):
+            box.template_icon(get_icon("source", "preview"), scale=5)
 
         box.separator()
 

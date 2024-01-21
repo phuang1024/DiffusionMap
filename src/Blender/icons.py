@@ -2,10 +2,10 @@
 Handles loading icons for bpy.
 """
 
-import os
-
 import bpy
 import bpy.utils.previews
+
+from .execute import get_source
 
 icons_global = {}
 
@@ -34,19 +34,15 @@ def icon_exists(key1: str, key2: str):
     return key1 in icons_global and key2 in icons_global[key1]
 
 
-def get_preview_file(path):
-    # TODO this should be integrated with Catalog
-    if os.path.isdir(path):
-        for file in os.listdir(path):
-            if "_" not in file and file.endswith((".jpg", ".png")):
-                return os.path.join(path, file)
-
-    return None
-
 def load_importer_icon(self, context):
     """update callback for property."""
-    tx_path = bpy.path.abspath(context.scene.dmap.local_texture_path)
-    preview_path = get_preview_file(tx_path)
-    clear_icons("importer")
-    if preview_path is not None:
-        load_icon("importer", "preview", preview_path)
+    clear_icons("source")
+
+    try:
+        source = get_source(context)
+    except:
+        return
+
+    maps = source.get_maps()
+    if "preview" in maps:
+        load_icon("source", "preview", str(maps["preview"]))
