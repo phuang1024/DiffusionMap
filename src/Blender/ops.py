@@ -32,10 +32,10 @@ class DMAP_OT_TexlistRefresh(bpy.types.Operator):
         props = context.scene.dmap
         prefs = context.preferences.addons[__package__].preferences
 
-        props.source_texlist.clear()
+        props.texlist.clear()
 
         if props.source == "1":
-            catalog = Catalog(CatalogType.GLOBAL, prefs.catalog_path)
+            catalog = Catalog(CatalogType.GLOBAL, bpy.path.abspath(prefs.catalog_path))
             results = catalog.iter_textures()
 
             for id in sorted(results.keys()):
@@ -47,7 +47,7 @@ class DMAP_OT_TexlistRefresh(bpy.types.Operator):
                 res = res.strip()
                 paths = paths.strip(os.path.pathsep)
 
-                p = props.source_texlist.add()
+                p = props.texlist.add()
                 p.id = id
                 p.res = res
                 p.path = paths

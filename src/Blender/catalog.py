@@ -8,6 +8,8 @@ from enum import Enum
 from pathlib import Path
 from zipfile import ZipFile
 
+import bpy
+
 
 def get_name_res(filename: str):
     """

@@ -26,8 +26,11 @@ class DMAP_PT_Main(BasePanel, bpy.types.Panel):
     def draw(self, context):
         def draw_texlist(layout):
             col = layout.column(align=True)
-            col.template_list("DMAP_UL_TextureList", "", props, "source_texlist", props, "source_texlist_index", rows=4)
             col.operator("dmap.texlist_refresh", icon="FILE_REFRESH")
+            col.template_list("DMAP_UL_TextureList", "", props, "texlist", props, "texlist_index", rows=4)
+
+            # TODO the text is not centered, because it's in a box. Blender bug?
+            layout.prop(props, "texlist_res", expand=True)
 
         def draw_dropdown(layout, prop, text):
             icon = "TRIA_DOWN" if getattr(props, prop) else "TRIA_RIGHT"

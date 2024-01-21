@@ -2,6 +2,7 @@
 Code to run the main Execute operator.
 """
 
+import os
 from pathlib import Path
 
 import bpy
@@ -21,7 +22,15 @@ def get_source(context) -> Asset:
         return Asset(path)
 
     elif props.source == "1":
-        raise NotImplementedError()
+        tex = props.texlist[props.texlist_index]
+        for i, res in enumerate(tex.res.split()):
+            if res == props.texlist_res:
+                break
+        else:
+            raise RuntimeError("This should never happen.")
+
+        path = tex.path.split(os.path.pathsep)[i]
+        return Asset(path)
 
     elif props.source == "2":
         raise NotImplementedError()

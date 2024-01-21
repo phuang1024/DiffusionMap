@@ -27,6 +27,21 @@ class DMAP_Prefs(bpy.types.AddonPreferences):
         layout.prop(self, "catalog_path")
 
 
+def get_texlist_res_items(self, context):
+    """Callback for texlist resolution selector Enum."""
+    props = context.scene.dmap
+
+    index = props.texlist_index
+    if index >= len(props.texlist):
+        return []
+
+    items = []
+    for res in props.texlist[index].res.split():
+        items.append((res, f"{res}K", f"{res}K resolution."))
+
+    return items
+
+
 class DMAP_Props(bpy.types.PropertyGroup):
     project_textures: StringProperty(
         name="Project textures",
@@ -70,8 +85,9 @@ class DMAP_Props(bpy.types.PropertyGroup):
         max=100,
     )
 
-    source_texlist: CollectionProperty(type=DMAP_Asset)
-    source_texlist_index: IntProperty()
+    texlist: CollectionProperty(type=DMAP_Asset)
+    texlist_index: IntProperty()
+    texlist_res: EnumProperty(items=get_texlist_res_items)
 
     # Import destination
 
