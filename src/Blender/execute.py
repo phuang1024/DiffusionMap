@@ -118,6 +118,8 @@ def validate_settings(context) -> str | None:
         if props.import_ref == "1":
             if not bpy.data.is_saved:
                 return "Importer: Reference Project: Blend must be saved."
+            if props.copy_type == "1" and not source.path.is_dir():
+                return "Importer: Reference Project: Symlink: Path must be directory (cannot be a zip file)."
         if props.import_ref == "2":
             if not prefs.catalog_path:
                 return "Importer: Reference Catalog: Catalog path not set."

@@ -7,8 +7,9 @@ class DMAP_UL_TextureList(bpy.types.UIList):
     """Draw a list of textures."""
 
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
-        # TODO icons
-        layout.label(text=item.id)
+        if icon_exists("texlist", item.id):
+            icon = get_icon("texlist", item.id)
+        layout.label(text=item.id, icon_value=icon)
 
 
 class BasePanel:

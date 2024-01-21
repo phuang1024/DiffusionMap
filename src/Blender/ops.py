@@ -3,7 +3,8 @@ from pathlib import Path
 
 import bpy
 
-from .execute import Catalog, CatalogType, execute_main, validate_settings, get_source
+from .execute import Asset, Catalog, CatalogType, execute_main, validate_settings, get_source
+from .icons import *
 
 
 class DMAP_OT_Main(bpy.types.Operator):
@@ -34,23 +35,50 @@ class DMAP_OT_TexlistRefresh(bpy.types.Operator):
 
         props.texlist.clear()
 
-        if props.source == "1":
+        if props.source == "0":
+            raise ValueError("Cannot search texlist on local file source.")
+
+        elif props.source == "1":
             catalog = Catalog(CatalogType.GLOBAL, bpy.path.abspath(prefs.catalog_path))
             results = catalog.iter_textures()
 
-            for id in sorted(results.keys()):
-                res = ""
-                paths = ""
-                for r, p in results[id].items():
-                    res += f"{r} "
-                    paths += f"{p}{os.path.pathsep}"
-                res = res.strip()
-                paths = paths.strip(os.path.pathsep)
+        elif props.source == "2":
+            raise NotImplementedError("Web search not implemented yet.")
 
-                p = props.texlist.add()
-                p.id = id
-                p.res = res
-                p.path = paths
+        elif props.source == "3":
+            raise NotImplementedError("Diffusion not implemented yet.")
+
+        else:
+            raise RuntimeError("This should never happen.")
+
+        clear_icons("texlist")
+
+        for id in sorted(results.keys()):
+            # Compile res and path strings.
+            res = ""
+            paths = ""
+            for r, p in results[id].items():
+                res += f"{r} "
+                paths += f"{p}{os.path.pathsep}"
+            res = res.strip()
+            paths = paths.strip(os.path.pathsep)
+
+            # Search for icon
+            icon = None
+            for r, p in results[id].items():
+                asset = Asset(p)
+                maps = asset.get_maps()
+                if "preview" in maps:
+                    icon = maps["preview"]
+                    break
+
+            if icon is not None:
+                load_icon("texlist", id, str(icon))
+
+            p = props.texlist.add()
+            p.id = id
+            p.res = res
+            p.path = paths
 
         return {"FINISHED"}
 
