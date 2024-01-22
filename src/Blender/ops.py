@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 import bpy
+import requests
 
 from .execute import Asset, Catalog, CatalogType, execute_main, validate_settings, get_source
 from .icons import *
@@ -90,7 +91,30 @@ class DMAP_OT_WebSearch(bpy.types.Operator):
     bl_options = {"REGISTER"}
 
     def execute(self, context):
-        # TODO
+        def query_acg(query: str, count: int, offset: int) -> dict:
+            r = requests.get(
+                "https://ambientcg.com/api/v2/full_json?"
+                "type=Material&"
+                "sort=Latest&"
+                "include=downloadData,mapData&"
+                f"limit={count}&"
+                f"offset={offset}&"
+                f"q={query}&"
+                "method=PBRApproximated,PBRPhotogrammetry,PBRProcedural,PBRMultiAngle"
+            )
+            r.raise_for_status()
+            return r.json()
+
+        props = context.scene.dmap
+
+        props.texlist.clear()
+
+        results = query_acg(props.web_query, props.web_limit, 0)
+        for asset in results["foundAssets"]:
+            p = props.texlist.add()
+            p.id = asset["assetId"]
+            # TODO res url
+
         return {"FINISHED"}
 
 
