@@ -2,19 +2,38 @@
 Code to run the main Execute operator.
 """
 
-import os
 from pathlib import Path
+from tempfile import mkdtemp
 
 import bpy
+import requests
 
 from .catalog import Asset, Catalog, CatalogType
 from .importer import import_material
 
+TMPDIR = Path(mkdtemp())
 
-def get_source(context) -> Asset:
+
+def get_source(context, execute=False) -> Asset:
     """
     Returns Asset defined by props.source et al.
+
+    execute: Whether this is called as part of the operator execute
+        (as opposed to getting icon).
     """
+    def get_texlist_choice():
+        """
+        Returns path (i.e. entry of DMAP_Asset.path) corresponding to selected resolution.
+        """
+        tex = props.texlist[props.texlist_index]
+        for i, res in enumerate(tex.res.split()):
+            if res == props.texlist_res:
+                break
+        else:
+            raise RuntimeError("This should never happen.")
+        path = tex.path.split(";")[i]
+        return path
+
     props = context.scene.dmap
 
     if props.source == "0":
@@ -22,18 +41,23 @@ def get_source(context) -> Asset:
         return Asset(path)
 
     elif props.source == "1":
-        tex = props.texlist[props.texlist_index]
-        for i, res in enumerate(tex.res.split()):
-            if res == props.texlist_res:
-                break
-        else:
-            raise RuntimeError("This should never happen.")
-
-        path = tex.path.split(os.path.pathsep)[i]
+        path = get_texlist_choice()
         return Asset(path)
 
     elif props.source == "2":
-        raise NotImplementedError()
+        if execute:
+            url = get_texlist_choice()
+            r = requests.get(url)
+            r.raise_for_status()
+
+            fname = f"{props.texlist[props.texlist_index].id}_{props.texlist_res}K-JPG.zip"
+            path = TMPDIR / fname
+            with open(path, "wb") as f:
+                f.write(r.content)
+
+            return Asset(path)
+        else:
+            raise NotImplementedError()
 
     elif props.source == "3":
         raise NotImplementedError()
@@ -86,7 +110,7 @@ def execute_main(self, context):
     """
     props = context.scene.dmap
 
-    source = get_source(context)
+    source = get_source(context, execute=True)
 
     if props.import_enabled:
         execute_import(self, context, source)
@@ -108,7 +132,7 @@ def validate_settings(context) -> str | None:
         if not local_texture_path.exists() or not props.local_texture_path:
             return "Source: Local file: Path does not exist."
 
-    source = get_source(context)
+    source = get_source(context, execute=True)
 
     # Check import destination
     if props.import_enabled:

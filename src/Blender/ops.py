@@ -4,6 +4,7 @@ from pathlib import Path
 import bpy
 import requests
 
+from .catalog import get_name_res
 from .execute import Asset, Catalog, CatalogType, execute_main, validate_settings, get_source
 from .icons import *
 
@@ -34,8 +35,6 @@ class DMAP_OT_TexlistRefresh(bpy.types.Operator):
         props = context.scene.dmap
         prefs = context.preferences.addons[__package__].preferences
 
-        props.texlist.clear()
-
         if props.source == "0":
             raise ValueError("Cannot search texlist on local file source.")
 
@@ -44,7 +43,8 @@ class DMAP_OT_TexlistRefresh(bpy.types.Operator):
             results = catalog.iter_textures()
 
         elif props.source == "2":
-            raise NotImplementedError("Web search not implemented yet.")
+            return {"CANCELLED"}
+            #raise NotImplementedError("Web search not implemented yet.")
 
         elif props.source == "3":
             raise NotImplementedError("Diffusion not implemented yet.")
@@ -52,6 +52,7 @@ class DMAP_OT_TexlistRefresh(bpy.types.Operator):
         else:
             raise RuntimeError("This should never happen.")
 
+        props.texlist.clear()
         clear_icons("texlist")
 
         for id in sorted(results.keys()):
@@ -60,9 +61,9 @@ class DMAP_OT_TexlistRefresh(bpy.types.Operator):
             paths = ""
             for r, p in results[id].items():
                 res += f"{r} "
-                paths += f"{p}{os.path.pathsep}"
+                paths += f"{p};"
             res = res.strip()
-            paths = paths.strip(os.path.pathsep)
+            paths = paths.strip(";")
 
             # Search for icon
             icon = None
@@ -113,7 +114,23 @@ class DMAP_OT_WebSearch(bpy.types.Operator):
         for asset in results["foundAssets"]:
             p = props.texlist.add()
             p.id = asset["assetId"]
-            # TODO res url
+
+            res_options = {}
+            for download in asset["downloadFolders"]["default"]["downloadFiletypeCategories"]["zip"]["downloads"]:
+                if "jpg" in download["attribute"].lower():
+                    _, res = get_name_res(download["fileName"])
+                    res_options[res] = download["downloadLink"]
+
+            res_str = ""
+            path_str = ""
+            for key in sorted(res_options.keys()):
+                res_str += f"{key} "
+                path_str += f"{res_options[key]};"
+            res_str = res_str.strip()
+            path_str = path_str.strip(";")
+
+            p.res = res_str
+            p.path = path_str
 
         return {"FINISHED"}
 
@@ -132,7 +149,7 @@ class DMAP_OT_ExportSource(bpy.types.Operator):
         return {"RUNNING_MODAL"}
 
     def execute(self, context):
-        source = get_source(context)
+        source = get_source(context, execute=True)
         export_path = source.export(Path(self.directory))
         self.report({"INFO"}, f"Exported to {export_path}")
         return {"FINISHED"}

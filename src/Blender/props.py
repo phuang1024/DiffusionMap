@@ -9,7 +9,7 @@ class DMAP_Asset(bpy.types.PropertyGroup):
     id: StringProperty()
     # Space separated available resolutions, e.g. "1 2 4 8"
     res: StringProperty()
-    # os.path.pathsep separated paths corresponding to resolutions.
+    # Semicolon separated paths corresponding to resolutions.
     path: StringProperty()
 
 
