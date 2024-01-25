@@ -42,6 +42,14 @@ def get_texlist_res_items(self, context):
     return items
 
 
+def source_callback(self, context):
+    """
+    Callback for props.source
+    """
+    bpy.ops.dmap.texlist_refresh(reset=True)
+    load_importer_icon(self, context)
+
+
 class DMAP_Props(bpy.types.PropertyGroup):
     project_textures: StringProperty(
         name="Project textures",
@@ -61,7 +69,7 @@ class DMAP_Props(bpy.types.PropertyGroup):
             ("3", "Diffusion", "Generate with a diffusion neural network."),
         ),
         default="0",
-        update=load_importer_icon,
+        update=source_callback,
     )
 
     local_texture_path: StringProperty(

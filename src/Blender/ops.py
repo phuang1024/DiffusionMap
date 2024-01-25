@@ -30,9 +30,16 @@ class DMAP_OT_TexlistRefresh(bpy.types.Operator):
     bl_label = "Refresh"
     bl_options = {"REGISTER"}
 
+    reset: bpy.props.BoolProperty(default=False)
+
     def execute(self, context):
         props = context.scene.dmap
         prefs = context.preferences.addons[__package__].preferences
+
+        if self.reset:
+            props.texlist.clear()
+            clear_icons("texlist")
+            return {"FINISHED"}
 
         if props.source == "0":
             raise ValueError("Cannot search texlist on local file source.")
