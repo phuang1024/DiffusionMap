@@ -86,6 +86,60 @@ class DMAP_Props(bpy.types.PropertyGroup):
         max=100,
     )
 
+    nn_source: EnumProperty(
+        name="NN source",
+        description="Local NN file or web download.",
+        items=(
+            ("0", "Local file", "Choose NN model from local file."),
+            ("1", "Web", "Download pretrained model from web."),
+        ),
+    )
+
+    nn_file: StringProperty(
+        name="NN file",
+        description="Choose NN local file.",
+        subtype="FILE_PATH",
+    )
+
+    nn_web: EnumProperty(
+        name="NN choice",
+        description="Choose a pretrained NN to download.",
+        items=(
+
+        ),
+    )
+
+    nn_output_count: IntProperty(
+        name="Output count",
+        description="Number of textures to generate.",
+        default=4,
+        min=1,
+        soft_max=16,
+    )
+
+    nn_show_advanced: BoolProperty(
+        name="Advanced",
+        description="Show advanced options.",
+        default=False,
+    )
+
+    nn_bs: IntProperty(
+        name="Batch size",
+        description="Number of textures to generate at once (more = more memory usage).",
+        default=1,
+        min=1,
+        soft_max=16,
+    )
+
+    nn_diff_steps: IntProperty(
+        name="Diffusion steps",
+        description="Number of diffusion steps (more = more time, better quality).",
+        default=1000,
+        min=100,
+        soft_max=2000,
+        step=100,
+    )
+
     texlist: CollectionProperty(type=DMAP_Asset)
     texlist_index: IntProperty(update=load_importer_icon)
     texlist_res: EnumProperty(items=get_texlist_res_items)

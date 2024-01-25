@@ -75,6 +75,27 @@ class DMAP_PT_Main(BasePanel, bpy.types.Panel):
             row.prop(props, "web_limit")
             subcol.operator("dmap.web_search", icon="VIEWZOOM")
 
+        elif props.source == "3":
+            draw_texlist(box)
+
+            subcol = box.column()
+            subcol.prop(props, "nn_source", expand=True)
+            if props.nn_source == "0":
+                subcol.prop(props, "nn_file")
+            elif props.nn_source == "1":
+                subcol.prop(props, "nn_web")
+            subcol.prop(props, "nn_output_count")
+
+            subcol = box.column(align=True)
+            icon = "TRIA_DOWN" if props.nn_show_advanced else "TRIA_RIGHT"
+            subcol.prop(props, "nn_show_advanced", toggle=True, icon=icon)
+            subbox = subcol.box()
+            if props.nn_show_advanced:
+                subbox.prop(props, "nn_bs")
+                subbox.prop(props, "nn_diff_steps")
+
+            subcol.operator("dmap.run_nn", icon="PARTICLES")
+
         # Draw large preview icon.
         if icon_exists("source", "preview"):
             box.template_icon(get_icon("source", "preview"), scale=5)

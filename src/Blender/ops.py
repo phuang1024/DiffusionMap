@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 import bpy
@@ -132,6 +131,16 @@ class DMAP_OT_WebSearch(bpy.types.Operator):
             p.res = res_str
             p.path = path_str
 
+        return {"FINISHED"}
+
+
+class DMAP_OT_RunNn(bpy.types.Operator):
+    """Run diffusion model and add generated textures to texlist."""
+    bl_idname = "dmap.run_nn"
+    bl_label = "Run diffusion model"
+    bl_options = {"REGISTER"}
+
+    def execute(self, context):
         return {"FINISHED"}
 
 

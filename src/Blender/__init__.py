@@ -27,6 +27,7 @@ classes = (
     DMAP_OT_Main,
     DMAP_OT_TexlistRefresh,
     DMAP_OT_WebSearch,
+    DMAP_OT_RunNn,
     DMAP_OT_ExportSource,
 
     DMAP_UL_TextureList,

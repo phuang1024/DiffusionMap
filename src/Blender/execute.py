@@ -11,7 +11,8 @@ import requests
 from .catalog import Asset, Catalog, CatalogType
 from .importer import import_material
 
-TMPDIR = Path(mkdtemp())
+# Downloaded textures are stored here (and then copied to user-specified dest.).
+TMPDIR_WEB = Path(mkdtemp())
 
 
 def get_source(context, execute=False) -> Asset:
@@ -44,23 +45,24 @@ def get_source(context, execute=False) -> Asset:
         path = get_texlist_choice()
         return Asset(path)
 
-    elif props.source == "2":
+    elif props.source in ("2", "3"):
         if execute:
-            url = get_texlist_choice()
-            r = requests.get(url)
-            r.raise_for_status()
+            if props.source == "2":
+                url = get_texlist_choice()
+                r = requests.get(url)
+                r.raise_for_status()
 
-            fname = f"{props.texlist[props.texlist_index].id}_{props.texlist_res}K-JPG.zip"
-            path = TMPDIR / fname
-            with open(path, "wb") as f:
-                f.write(r.content)
+                fname = f"{props.texlist[props.texlist_index].id}_{props.texlist_res}K-JPG.zip"
+                path = TMPDIR_WEB / fname
+                with open(path, "wb") as f:
+                    f.write(r.content)
+            else:
+                path = get_texlist_choice()
 
             return Asset(path)
+
         else:
             raise NotImplementedError()
-
-    elif props.source == "3":
-        raise NotImplementedError()
 
     raise RuntimeError("This should never happen.")
 
@@ -147,6 +149,11 @@ def validate_settings(context) -> str | None:
     if props.catalog_enabled:
         if not prefs.catalog_path:
             return "Save to catalog: Catalog path not set."
+
+    # Check texlist size
+    if props.source in ("1", "2", "3"):
+        if len(props.texlist) == 0:
+            return "Texture list is empty."
 
     if props.source in ("0", "1"):
         # Check source
