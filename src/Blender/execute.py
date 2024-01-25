@@ -69,6 +69,14 @@ def execute_import(self, context, source: Asset):
     props = context.scene.dmap
     prefs = context.preferences.addons[__package__].preferences
 
+    # If source is web or diffusion AND reference Project with symlink,
+    # textures need to be copied to catalog.
+    if props.source in ("2", "3") and props.import_ref == "1" and props.copy_type == "1":
+        execute_copy_to_catalog(self, context, source)
+        catalog = Catalog(CatalogType.GLOBAL, bpy.path.abspath(prefs.catalog_path))
+        source = catalog.get_asset(source.name, source.res)
+        self.report({"INFO"}, "Reference Project with Symlink: Textures copied to Catalog.")
+
     if props.import_ref == "0":
         path = source.path
 
@@ -126,24 +134,11 @@ def validate_settings(context) -> str | None:
     props = context.scene.dmap
     prefs = context.preferences.addons[__package__].preferences
 
-    # Check source
-    if props.source == "0":
-        local_texture_path = Path(bpy.path.abspath(props.local_texture_path))
-        if not local_texture_path.exists() or not props.local_texture_path:
-            return "Source: Local file: Path does not exist."
-
-    source = get_source(context, execute=True)
-
     # Check import destination
     if props.import_enabled:
-        if props.import_ref == "0":
-            if not source.path.is_dir():
-                return "Importer: Reference Original: Path must be directory (cannot be a zip file)."
         if props.import_ref == "1":
             if not bpy.data.is_saved:
                 return "Importer: Reference Project: Blend must be saved."
-            if props.copy_type == "1" and not source.path.is_dir():
-                return "Importer: Reference Project: Symlink: Path must be directory (cannot be a zip file)."
         if props.import_ref == "2":
             if not prefs.catalog_path:
                 return "Importer: Reference Catalog: Catalog path not set."
@@ -152,5 +147,27 @@ def validate_settings(context) -> str | None:
     if props.catalog_enabled:
         if not prefs.catalog_path:
             return "Save to catalog: Catalog path not set."
+
+    if props.source in ("0", "1"):
+        # Check source
+        if props.source == "0":
+            local_texture_path = Path(bpy.path.abspath(props.local_texture_path))
+            if not local_texture_path.exists() or not props.local_texture_path:
+                return "Source: Local file: Path does not exist."
+
+        # Check import destination
+        source = get_source(context)
+        if props.import_enabled:
+            if props.import_ref == "0":
+                if not source.path.is_dir():
+                    return "Importer: Reference Original: Path must be directory (cannot be a zip file)."
+            if props.import_ref == "1":
+                if props.copy_type == "1" and not source.path.is_dir():
+                    return "Importer: Reference Project: Symlink: Path must be directory (cannot be a zip file)."
+
+    else:
+        if props.import_enabled:
+            if props.import_ref == "0":
+                return "Importer: Reference Original: Cannot be used with web or diffusion."
 
     return None
