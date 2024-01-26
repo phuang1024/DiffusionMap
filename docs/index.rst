@@ -7,6 +7,7 @@
    install.rst
    quickstart.rst
    manual.rst
+   developers.rst
 
 
 DiffusionMap
