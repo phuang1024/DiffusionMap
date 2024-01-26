@@ -1,5 +1,7 @@
 __pycache__
 
+/build
+
 /docs/_build
 
 /data
