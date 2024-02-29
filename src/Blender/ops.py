@@ -148,6 +148,28 @@ class DMAP_OT_RunNn(bpy.types.Operator):
     bl_options = {"REGISTER"}
 
     def execute(self, context):
+        import torch
+        from ColorDiffusion import create_model
+
+        props = context.scene.dmap
+
+        # Get NN source file.
+        if props.nn_source == "0":
+            nn_file = bpy.path.abspath(props.nn_file)
+        elif props.nn_source == "1":
+            self.report({"ERROR"}, "Web download not implemented yet.")
+            return {"CANCELLED"}
+        else:
+            raise RuntimeError("This should never happen.")
+
+        model, diffusion = create_model()
+        model.load_state_dict(torch.load(nn_file))
+
+        with torch.no_grad():
+            generated = diffusion.sample(batch_size=props.nn_output_count)
+
+        print(generated.shape)
+
         return {"FINISHED"}
 
 
