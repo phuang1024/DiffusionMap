@@ -27,8 +27,9 @@ class DMAP_PT_Main(BasePanel, bpy.types.Panel):
     def draw(self, context):
         def draw_texlist(layout):
             col = layout.column(align=True)
-            col.operator("dmap.texlist_refresh", icon="FILE_REFRESH")
             col.template_list("DMAP_UL_TextureList", "", props, "texlist", props, "texlist_index", rows=4)
+            if props.source == "1":
+                col.operator("dmap.texlist_refresh", icon="FILE_REFRESH")
 
             # TODO the text is not centered, because it's in a box. Blender bug?
             layout.prop(props, "texlist_res", expand=True)
