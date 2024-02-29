@@ -91,7 +91,7 @@ def execute_import(self, context, source: Asset):
             archive_type = CatalogType.GLOBAL
         archive = Catalog(archive_type, bpy.path.abspath(archive_path))
 
-        path = archive.copy_textures(source, symlink=(props.copy_type == "1" and props.source in ("0", "1")))
+        path = archive.copy_textures(source, symlink=(props.copy_type == "1"))
         path = str(path)
 
     else:
