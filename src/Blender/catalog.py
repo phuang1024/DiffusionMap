@@ -6,6 +6,7 @@ See docs for file structure.
 import shutil
 from enum import Enum
 from pathlib import Path
+from tempfile import mkdtemp
 from zipfile import ZipFile
 
 
@@ -24,6 +25,7 @@ def get_name_res(filename: str):
 class Asset:
     def __init__(self, path):
         self.path = Path(path)
+
         if self.path.stem.isdigit():
             self.res = int(self.path.stem)
             self.name = self.path.parent.name
@@ -31,13 +33,17 @@ class Asset:
             self.name, self.res = get_name_res(self.path.stem)
         self.id = f"{self.name}_{self.res}K"
 
+        # Unzip into tmpdir if path is zip.
+        if self.path.is_file():
+            with ZipFile(self.path, "r") as zip:
+                tmpdir = mkdtemp()
+                zip.extractall(tmpdir)
+            self.path = Path(tmpdir)
+
     def get_maps(self) -> dict[str, Path]:
         """
         Returns dict of map name to absolute file path.
         """
-        if self.path.is_file():
-            raise ValueError("Cannot get maps of zip Asset.")
-
         maps = {}
         for f in self.path.iterdir():
             name = f.name.lower()
@@ -56,13 +62,13 @@ class Asset:
 
         return maps
 
-    def export(self, path: Path):
-        export_path = path / self.id
-        export_path.mkdir(exist_ok=True, parents=True)
+    def copy_to(self, path: Path):
+        dest_path = path / self.id
+        dest_path.mkdir(exist_ok=True, parents=True)
         for f in self.path.iterdir():
-            shutil.copy(f, export_path)
+            shutil.copy(f, dest_path)
 
-        return export_path
+        return dest_path
 
 
 class CatalogType(Enum):
@@ -95,30 +101,22 @@ class Catalog:
         Destination path is determined by the name and resolution of the source path.
 
         source: Source Asset object.
-        symlink: if True, create symlink instead of copying. Can only be used with directory.
+        symlink: if True, create symlink instead of copying.
         """
         target_path = self.get_asset_path(source.name, source.res)
 
-        if source.path.is_dir():
-            target_path.parent.mkdir(exist_ok=True, parents=True)
-            if symlink:
-                target_path.symlink_to(source.path, target_is_directory=True)
-            else:
-                shutil.copytree(source.path, target_path, dirs_exist_ok=True)
-
-        elif source.path.is_file():
-            if symlink:
-                raise ValueError("Cannot create symlink for zip file.")
-            target_path.mkdir(exist_ok=True, parents=True)
-            with ZipFile(source.path, "r") as zip:
-                zip.extractall(target_path)
+        target_path.parent.mkdir(exist_ok=True, parents=True)
+        if symlink:
+            target_path.symlink_to(source.path, target_is_directory=True)
+        else:
+            shutil.copytree(source.path, target_path, dirs_exist_ok=True)
 
         return target_path
 
-    def iter_textures(self) -> dict[str, dict[str, int]]:
+    def iter_textures(self) -> dict[str, dict[int, str]]:
         """
         return {
-            Asset001: {
+            "Asset001": {
                 1: /path/to/Asset001_1K,
                 ...
             }

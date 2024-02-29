@@ -166,6 +166,6 @@ class DMAP_OT_ExportSource(bpy.types.Operator):
 
     def execute(self, context):
         source = get_source(context, execute=True)
-        export_path = source.export(Path(self.directory))
+        export_path = source.copy_to(Path(self.directory))
         self.report({"INFO"}, f"Exported to {export_path}")
         return {"FINISHED"}
