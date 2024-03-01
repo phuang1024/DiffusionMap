@@ -149,7 +149,7 @@ class DMAP_OT_RunNn(bpy.types.Operator):
 
     def execute(self, context):
         import torch
-        from ColorDiffusion import create_model
+        from .ColorDiffusion import create_model
 
         props = context.scene.dmap
 
@@ -162,7 +162,7 @@ class DMAP_OT_RunNn(bpy.types.Operator):
         else:
             raise RuntimeError("This should never happen.")
 
-        model, diffusion = create_model()
+        model, diffusion = create_model(1024)
         model.load_state_dict(torch.load(nn_file))
 
         with torch.no_grad():

@@ -16,7 +16,7 @@ def train(args, dataset):
     train_loader = DataLoader(train_dset, **loader_args)
     test_loader = DataLoader(test_dset, **loader_args)
 
-    model, diffusion = create_model(args)
+    model, diffusion = create_model(args.res)
 
     if args.resume:
         print("Resuming from", args.resume)
