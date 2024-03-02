@@ -9,6 +9,9 @@ from pathlib import Path
 from tempfile import mkdtemp
 from zipfile import ZipFile
 
+# Tmp used for unzipping.
+ASSET_TMP = Path(mkdtemp())
+
 
 def get_name_res(filename: str):
     """
@@ -36,7 +39,7 @@ class Asset:
         # Unzip into tmpdir if path is zip.
         if self.path.is_file():
             with ZipFile(self.path, "r") as zip:
-                tmpdir = mkdtemp()
+                tmpdir = ASSET_TMP / self.id
                 zip.extractall(tmpdir)
             self.path = Path(tmpdir)
 
