@@ -23,7 +23,7 @@ def train(args, dataset):
         model.load_state_dict(torch.load(args.resume))
 
     optim = torch.optim.Adam(model.parameters(), lr=args.lr)
-    scheduler = torch.optim.lr_scheduler.ExponentialLR(optim, gamma=0.997)
+    scheduler = torch.optim.lr_scheduler.ExponentialLR(optim, gamma=0.97)
 
     writer = SummaryWriter(args.output / "logs")
 

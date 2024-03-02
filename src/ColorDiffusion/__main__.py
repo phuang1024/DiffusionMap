@@ -18,11 +18,11 @@ def main():
 
     train_p = subp.add_parser("train")
     train_p.add_argument("--resume", type=str)
-    train_p.add_argument("--epochs", type=int, default=1001)
+    train_p.add_argument("--epochs", type=int, default=101)
     train_p.add_argument("--lr", type=float, default=1e-4)
     train_p.add_argument("--train_mult", type=int, default=8, help="Repeat train dataset N times per epoch")
-    train_p.add_argument("--test_interval", type=int, default=40)
-    train_p.add_argument("--batch_size", type=int, default=8)
+    train_p.add_argument("--test_interval", type=int, default=25)
+    train_p.add_argument("--batch_size", type=int, default=4)
     train_p.add_argument("--grad_accum", type=int, default=4)
 
     data_p = subp.add_parser("view_data")
