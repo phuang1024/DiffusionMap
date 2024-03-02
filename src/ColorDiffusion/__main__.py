@@ -1,4 +1,5 @@
 import argparse
+import json
 from pathlib import Path
 
 from AcgData import ColorDataset
@@ -10,32 +11,24 @@ def main():
     parser = argparse.ArgumentParser()
     subp = parser.add_subparsers(dest="action")
 
-    parser.add_argument("--data", type=Path, required=True)
-    parser.add_argument("--output", type=Path, required=True)
-
-    parser.add_argument("--res", type=int, default=256)
-    parser.add_argument("--image_scale", type=float, default=0.5, help="Passed to ColorDataset")
-
     train_p = subp.add_parser("train")
-    train_p.add_argument("--resume", type=str)
-    train_p.add_argument("--epochs", type=int, default=101)
-    train_p.add_argument("--lr", type=float, default=1e-4)
-    train_p.add_argument("--train_mult", type=int, default=8, help="Repeat train dataset N times per epoch")
-    train_p.add_argument("--test_interval", type=int, default=25)
-    train_p.add_argument("--batch_size", type=int, default=4)
-    train_p.add_argument("--grad_accum", type=int, default=4)
+    train_p.add_argument("--config", type=Path, required=True, help="Path to config json. See docs.")
 
     data_p = subp.add_parser("view_data")
+    data_p.add_argument("--data", type=Path, required=True)
 
     args = parser.parse_args()
 
-    dataset = ColorDataset(args.data, args.res, image_scale=args.image_scale)
-
     if args.action == "train":
-        args.output.mkdir(exist_ok=True)
-        train(args, dataset)
+        with args.config.open() as f:
+            config = json.load(f)
+        config["data"] = Path(config["data"])
+        config["results"] = Path(config["results"])
+
+        train(config)
 
     elif args.action == "view_data":
+        dataset = ColorDataset(args.data, 1024, image_scale=1)
         preview_data(args, dataset)
 
 
