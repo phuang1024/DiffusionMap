@@ -108,6 +108,9 @@ class Catalog:
         """
         target_path = self.get_asset_path(source.name, source.res)
 
+        if target_path.exists():
+            return
+
         target_path.parent.mkdir(exist_ok=True, parents=True)
         if symlink:
             target_path.symlink_to(source.path, target_is_directory=True)
