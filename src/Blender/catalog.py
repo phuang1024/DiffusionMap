@@ -98,7 +98,7 @@ class Catalog:
     def get_asset_path(self, name, res) -> Path:
         return self.get_asset(name, res).path
 
-    def copy_textures(self, source: Asset, symlink: bool = False):
+    def copy_textures(self, source: Asset, symlink: bool = False) -> Path:
         """
         Copy external textures to this catalog.
         Destination path is determined by the name and resolution of the source path.
@@ -107,9 +107,8 @@ class Catalog:
         symlink: if True, create symlink instead of copying.
         """
         target_path = self.get_asset_path(source.name, source.res)
-
         if target_path.exists():
-            return
+            return target_path
 
         target_path.parent.mkdir(exist_ok=True, parents=True)
         if symlink:
